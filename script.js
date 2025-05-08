@@ -119,9 +119,13 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
 
   document.body.appendChild(container);
+  
+  // Enable dark mode by default
+  document.body.classList.add('dark-mode');
 
   // Add dark mode toggle
   const darkModeToggle = document.createElement('button');
+  darkModeToggle.innerHTML = '☀️'; // Set initial icon to sun since dark mode is on
   darkModeToggle.id = 'darkModeToggle';
   darkModeToggle.innerHTML = '🌙';
   darkModeToggle.className = 'mode-toggle';
