@@ -360,6 +360,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
+      // Bridge transaction validation
+      const validateBridgeBtn = document.getElementById('validateBridgeBtn');
+      validateBridgeBtn?.addEventListener('click', () => {
+        const fromChain = document.getElementById('fromChain').value;
+        const toChain = document.getElementById('toChain').value;
+        const amount = document.getElementById('bridgeAmountInput').value;
+
+        const bridgeCheck = verifySolanaTransaction(fromChain, toChain, parseFloat(amount));
+
+        const resultArea = document.getElementById('resultArea');
+        if (resultArea) {
+          resultArea.innerHTML = `
+            Bridge Status: ${bridgeCheck.isValid ? '✅ Safe' : '❌ Risky'}<br>
+            Program ID: ${bridgeCheck.programId}<br>
+            Est. Time: ${bridgeCheck.estimatedTime}<br>
+            Fee: ${bridgeCheck.fee} ${fromChain}
+          `;
+          resultArea.className = bridgeCheck.isValid ? 'success' : 'error';
+        }
+      });
+
       const socialSentiment = analyzeSocialSentiment(tokenName);
       const honeypotSafe = checkHoneypotRisk(contractCode);
 
