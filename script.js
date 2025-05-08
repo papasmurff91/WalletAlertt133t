@@ -95,6 +95,27 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="checkTransactionBtn">Verify Transaction</button>
       </div>
     </div>
+    <div class="cross-chain-monitor">
+      <h3>Cross-Chain Monitor</h3>
+      <div class="monitor-grid">
+        <div class="bridge-status">
+          <h4>Bridge Status</h4>
+          <div id="bridgeHealth">Healthy ✅</div>
+          <div class="bridge-stats">
+            <div>Total Volume: <span id="bridgeVolume">$0</span></div>
+            <div>24h Transactions: <span id="bridgeTx">0</span></div>
+          </div>
+        </div>
+        <div class="gas-tracker">
+          <h4>Gas Tracker</h4>
+          <div class="gas-grid">
+            <div>ETH: <span id="ethGas">--</span></div>
+            <div>BSC: <span id="bscGas">--</span></div>
+            <div>SOL: <span id="solGas">--</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
     <div id="resultArea"></div>
   `;
 
@@ -243,6 +264,34 @@ document.addEventListener('DOMContentLoaded', () => {
       resultArea.className = isError ? 'error' : 'success';
     }
   }
+
+  // Cross-chain monitoring simulation
+  function updateBridgeStats() {
+    const volume = Math.floor(Math.random() * 1000000);
+    const tx = Math.floor(Math.random() * 100);
+    document.getElementById('bridgeVolume').textContent = `$${volume.toLocaleString()}`;
+    document.getElementById('bridgeTx').textContent = tx;
+  }
+
+  function updateGasTracker() {
+    const networks = {
+      'ethGas': '50-60',
+      'bscGas': '5-7',
+      'solGas': '0.001'
+    };
+    
+    Object.entries(networks).forEach(([network, gas]) => {
+      document.getElementById(network).textContent = gas;
+    });
+  }
+
+  // Update stats periodically
+  setInterval(updateBridgeStats, 5000);
+  setInterval(updateGasTracker, 10000);
+
+  // Initial updates
+  updateBridgeStats();
+  updateGasTracker();
 
   // Event Listeners
   const validateBtn = document.getElementById('validateBtn');
