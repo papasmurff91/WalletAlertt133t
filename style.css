@@ -70,3 +70,31 @@ input, select {
   background-color: #e6ffe6;
   color: #00b894;
 }
+
+.alert-banner {
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.alert-banner.high {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.alert-banner.low {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.token-analyzer {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.token-analyzer input {
+  margin: 5px 0;
+}
