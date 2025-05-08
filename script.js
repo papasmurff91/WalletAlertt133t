@@ -3,7 +3,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const container = document.createElement('div');
   container.className = 'container';
   container.innerHTML = `
-    <h1>Cross-Chain Protection System</h1>
+    <h1>Cross-Chain Bridge Dashboard</h1>
+    <div class="network-status">
+      <div class="network-item">
+        <span class="status-dot active"></span>
+        Ethereum
+      </div>
+      <div class="network-item">
+        <span class="status-dot active"></span>
+        BSC
+      </div>
+      <div class="network-item">
+        <span class="status-dot active"></span>
+        Solana
+      </div>
+    </div>
     <div class="info-panel">
       <div class="info-header">
         <span>ℹ️ Project Information</span>
@@ -24,6 +38,34 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
     <div class="alert-banner" id="alertBanner"></div>
     <div class="protection-features">
+      <div class="bridge-monitor">
+        <h3>Bridge Transaction Monitor</h3>
+        <div class="chain-selector">
+          <select id="fromChain">
+            <option value="ETH">Ethereum</option>
+            <option value="BSC">BSC</option>
+            <option value="SOL">Solana</option>
+          </select>
+          <span>➡️</span>
+          <select id="toChain">
+            <option value="BSC">BSC</option>
+            <option value="ETH">Ethereum</option>
+            <option value="SOL">Solana</option>
+          </select>
+        </div>
+        <input type="text" id="bridgeAmountInput" placeholder="Enter amount to bridge">
+        <button id="validateBridgeBtn">Validate Bridge Transaction</button>
+      </div>
+      
+      <div class="liquidity-monitor">
+        <h3>Bridge Liquidity Monitor</h3>
+        <div class="liquidity-stats">
+          <div>ETH-BSC: <span id="ethBscLiquidity">loading...</span></div>
+          <div>BSC-SOL: <span id="bscSolLiquidity">loading...</span></div>
+          <div>ETH-SOL: <span id="ethSolLiquidity">loading...</span></div>
+        </div>
+      </div>
+
       <div class="token-analyzer">
         <h3>Token Safety Analyzer</h3>
         <input type="text" id="tokenNameInput" placeholder="Enter token name">
