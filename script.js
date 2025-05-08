@@ -187,35 +187,40 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   const analyzeTokenBtn = document.getElementById('analyzeTokenBtn');
-  analyzeTokenBtn?.addEventListener('click', () => {
-    const tokenName = document.getElementById('tokenNameInput').value;
-    const contractCode = document.getElementById('contractCodeInput').value;
-    
-    if (!tokenName || !contractCode) {
+  if (analyzeTokenBtn) {
+    analyzeTokenBtn.addEventListener('click', () => {
+      const tokenName = document.getElementById('tokenNameInput')?.value || '';
+      const contractCode = document.getElementById('contractCodeInput')?.value || '';
       const alertBanner = document.getElementById('alertBanner');
-      alertBanner.className = 'alert-banner high';
-      alertBanner.textContent = '⚠️ Please fill in all fields';
-      return;
-    }
-  
-    const socialSentiment = analyzeSocialSentiment(tokenName);
-    const honeypotSafe = checkHoneypotRisk(contractCode);
+      
+      if (!tokenName || !contractCode) {
+        if (alertBanner) {
+          alertBanner.className = 'alert-banner high';
+          alertBanner.textContent = '⚠️ Please fill in all fields';
+        }
+        return;
+      }
     
-    let riskLevel = 'LOW';
-    let message = '✅ Token appears safe. ';
-    
-    if (!socialSentiment) {
-      riskLevel = 'HIGH';
-      message = '🚨 WARNING: Negative social signals detected! ';
-    }
-    
-    if (!honeypotSafe) {
-      riskLevel = 'HIGH';
-      message += '⚠️ Potential honeypot contract detected!';
-    }
-    
-    const alertBanner = document.getElementById('alertBanner');
-    alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
-    alertBanner.textContent = message;
-  });
+      const socialSentiment = analyzeSocialSentiment(tokenName);
+      const honeypotSafe = checkHoneypotRisk(contractCode);
+      
+      let riskLevel = 'LOW';
+      let message = '✅ Token appears safe. ';
+      
+      if (!socialSentiment) {
+        riskLevel = 'HIGH';
+        message = '🚨 WARNING: Negative social signals detected! ';
+      }
+      
+      if (!honeypotSafe) {
+        riskLevel = 'HIGH';
+        message += '⚠️ Potential honeypot contract detected!';
+      }
+      
+      if (alertBanner) {
+        alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
+        alertBanner.textContent = message;
+      }
+    });
+  }
 });
