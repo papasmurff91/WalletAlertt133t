@@ -58,15 +58,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   document.body.appendChild(container);
 
-// Info panel toggle functionality
-const infoHeader = document.querySelector('.info-header');
-const infoContent = document.querySelector('.info-content');
-const infoArrow = infoHeader.querySelector('span:last-child');
+  // Info panel toggle functionality
+  const infoHeader = document.querySelector('.info-header');
+  const infoContent = document.querySelector('.info-content');
+  const infoArrow = infoHeader.querySelector('span:last-child');
 
-infoHeader.addEventListener('click', () => {
-  infoContent.classList.toggle('expanded');
-  infoArrow.textContent = infoContent.classList.contains('expanded') ? '▲' : '▼';
-});
+  infoHeader.addEventListener('click', () => {
+    infoContent.classList.toggle('expanded');
+    infoArrow.textContent = infoContent.classList.contains('expanded') ? '▲' : '▼';
+  });
 
   // Chain-specific address validation
   const addressPatterns = {
@@ -76,7 +76,6 @@ infoHeader.addEventListener('click', () => {
   };
 
   // Common scam patterns
-  // Enhanced scam detection patterns based on user reports
   const scamPatterns = {
     urgencyTactics: [
       /urgent/i,
@@ -115,7 +114,6 @@ infoHeader.addEventListener('click', () => {
   };
 
   function analyzeSocialSentiment(tokenName) {
-    // Simulated social sentiment check
     const negativeSignals = [
       'scam',
       'rugpull',
@@ -137,7 +135,6 @@ infoHeader.addEventListener('click', () => {
   }
 
   function checkContractSafety(address) {
-    // Basic contract safety checks
     const suspiciousPatterns = [
       address.length !== 42,
       !/^0x/.test(address),
@@ -186,39 +183,35 @@ infoHeader.addEventListener('click', () => {
     }
   });
 
-  const analyzeTokenBtn = document.getElementById('analyzeTokenBtn');
-  if (analyzeTokenBtn) {
-    analyzeTokenBtn.addEventListener('click', () => {
-      const tokenName = document.getElementById('tokenNameInput')?.value || '';
-      const contractCode = document.getElementById('contractCodeInput')?.value || '';
-      
-      if (!tokenName || !contractCode) {
-        const alertBanner = document.getElementById('alertBanner');
-        if (alertBanner) {
-          alertBanner.className = 'alert-banner high';
-          alertBanner.textContent = '⚠️ Please fill in all fields';
-        }
-        return;
-      }
+  document.getElementById('analyzeTokenBtn').addEventListener('click', () => {
+    const tokenName = document.getElementById('tokenNameInput').value;
+    const contractCode = document.getElementById('contractCodeInput').value;
     
-      const socialSentiment = analyzeSocialSentiment(tokenName);
-      const honeypotSafe = checkHoneypotRisk(contractCode);
-      
-      let riskLevel = 'LOW';
-      let message = '✅ Token appears safe. ';
-      
-      if (!socialSentiment) {
-        riskLevel = 'HIGH';
-        message = '🚨 WARNING: Negative social signals detected! ';
-      }
-      
-      if (!honeypotSafe) {
-        riskLevel = 'HIGH';
-        message += '⚠️ Potential honeypot contract detected!';
-      }
-      
+    if (!tokenName || !contractCode) {
       const alertBanner = document.getElementById('alertBanner');
-      alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
-      alertBanner.textContent = message;
-    });
+      alertBanner.className = 'alert-banner high';
+      alertBanner.textContent = '⚠️ Please fill in all fields';
+      return;
+    }
+  
+    const socialSentiment = analyzeSocialSentiment(tokenName);
+    const honeypotSafe = checkHoneypotRisk(contractCode);
+    
+    let riskLevel = 'LOW';
+    let message = '✅ Token appears safe. ';
+    
+    if (!socialSentiment) {
+      riskLevel = 'HIGH';
+      message = '🚨 WARNING: Negative social signals detected! ';
+    }
+    
+    if (!honeypotSafe) {
+      riskLevel = 'HIGH';
+      message += '⚠️ Potential honeypot contract detected!';
+    }
+    
+    const alertBanner = document.getElementById('alertBanner');
+    alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
+    alertBanner.textContent = message;
+  });
 });
