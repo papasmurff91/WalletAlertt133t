@@ -120,8 +120,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
   function displayResult(message, isError = false) {
     const resultArea = document.getElementById('resultArea');
-    resultArea.innerHTML = message;
-    resultArea.className = isError ? 'error' : 'success';
+    if (resultArea) {
+      resultArea.innerHTML = message;
+      resultArea.className = isError ? 'error' : 'success';
+    }
   }
 
   // Event Listeners
@@ -156,7 +158,20 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   });
 
-  document.getElementById('analyzeTokenBtn')?.addEventListener('click', () => {
+  const analyzeTokenBtn = document.getElementById('analyzeTokenBtn');
+  if (analyzeTokenBtn) {
+    analyzeTokenBtn.addEventListener('click', () => {
+      const tokenName = document.getElementById('tokenNameInput')?.value || '';
+      const contractCode = document.getElementById('contractCodeInput')?.value || '';
+      
+      if (!tokenName || !contractCode) {
+        const alertBanner = document.getElementById('alertBanner');
+        if (alertBanner) {
+          alertBanner.className = 'alert-banner high';
+          alertBanner.textContent = '⚠️ Please fill in all fields';
+        }
+        return;
+      }
     const tokenName = document.getElementById('tokenNameInput').value;
     const contractCode = document.getElementById('contractCodeInput').value;
     
