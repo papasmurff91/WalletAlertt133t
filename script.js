@@ -58,6 +58,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.body.appendChild(container);
 
+  // Add dark mode toggle
+  const darkModeToggle = document.createElement('button');
+  darkModeToggle.id = 'darkModeToggle';
+  darkModeToggle.innerHTML = '🌙';
+  darkModeToggle.className = 'mode-toggle';
+  document.body.appendChild(darkModeToggle);
+
+  // Add analytics panel
+  const analyticsPanel = document.createElement('div');
+  analyticsPanel.className = 'analytics-panel';
+  analyticsPanel.innerHTML = `
+    <h3>Analytics Dashboard</h3>
+    <div class="stats">
+      <div>Transactions Analyzed: <span id="txCount">0</span></div>
+      <div>Alerts Triggered: <span id="alertCount">0</span></div>
+      <div>Risk Level: <span id="riskLevel">Low</span></div>
+    </div>
+    <div class="swap-alerts">
+      <h4>Recent Swap Alerts</h4>
+      <ul id="swapAlertsList"></ul>
+    </div>
+  `;
+  container.appendChild(analyticsPanel);
+
+  // Dark mode functionality
+  darkModeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    darkModeToggle.innerHTML = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+  });
+
+  // Analytics tracking
+  let txAnalyzed = 0;
+  let alertsTriggered = 0;
+
+  function updateAnalytics(riskLevel) {
+    txAnalyzed++;
+    document.getElementById('txCount').textContent = txAnalyzed;
+    
+    if (riskLevel === 'HIGH') {
+      alertsTriggered++;
+      document.getElementById('alertCount').textContent = alertsTriggered;
+      
+      const alertsList = document.getElementById('swapAlertsList');
+      const alertItem = document.createElement('li');
+      alertItem.textContent = `Alert #${alertsTriggered}: High risk transaction detected`;
+      alertsList.insertBefore(alertItem, alertsList.firstChild);
+    }
+    
+    document.getElementById('riskLevel').textContent = riskLevel;
+  }
+
   // Info panel toggle functionality
   const infoHeader = document.querySelector('.info-header');
   const infoContent = document.querySelector('.info-content');
