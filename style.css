@@ -298,3 +298,62 @@ input, select {
   color: #4CAF50;
   margin: 10px 0;
 }
+
+.project-summary {
+  background: #f0f8ff;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.summary-header {
+  background: #2962ff;
+  color: white;
+  padding: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.summary-content {
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+}
+
+.summary-content.expanded {
+  padding: 15px;
+  max-height: 500px;
+}
+
+.security-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+  padding: 10px;
+  background: rgba(0,0,0,0.05);
+  border-radius: 4px;
+}
+
+.dark-mode .project-summary {
+  background: #1a237e;
+}
+
+.dark-mode .summary-header {
+  background: #283593;
+}
+
+.dark-mode .security-stats {
+  background: rgba(255,255,255,0.05);
+}
+
+.expand-btn {
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0 5px;
+}

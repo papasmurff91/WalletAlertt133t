@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded', () => {
   const container = document.createElement('div');
   container.className = 'container';
@@ -56,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <input type="text" id="bridgeAmountInput" placeholder="Enter amount to bridge">
         <button id="validateBridgeBtn">Validate Bridge Transaction</button>
       </div>
-      
+
       <div class="liquidity-monitor">
         <h3>Bridge Liquidity Monitor</h3>
         <div class="liquidity-stats">
@@ -82,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <input type="text" id="addressInput" placeholder="Enter wallet address">
         <button id="validateBtn">Validate Address</button>
       </div>
-      
+
       <div class="contract-checker">
         <h3>Smart Contract Verification</h3>
         <input type="text" id="contractInput" placeholder="Enter contract address">
@@ -158,17 +157,17 @@ document.addEventListener('DOMContentLoaded', () => {
   function updateAnalytics(riskLevel) {
     txAnalyzed++;
     document.getElementById('txCount').textContent = txAnalyzed;
-    
+
     if (riskLevel === 'HIGH') {
       alertsTriggered++;
       document.getElementById('alertCount').textContent = alertsTriggered;
-      
+
       const alertsList = document.getElementById('swapAlertsList');
       const alertItem = document.createElement('li');
       alertItem.textContent = `Alert #${alertsTriggered}: High risk transaction detected`;
       alertsList.insertBefore(alertItem, alertsList.firstChild);
     }
-    
+
     document.getElementById('riskLevel').textContent = riskLevel;
   }
 
@@ -183,11 +182,29 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Chain-specific address validation
+  // Solana Program IDs for cross-chain bridges
+  const SOLANA_BRIDGE_PROGRAMS = {
+    ETH: 'wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb',
+    BSC: 'WnFt12ZrnzZrFZkt2xsNsaNWoQribnuQ5B5FrjnMRXY',
+    AVAX: 'KdNhxoXZxX5DqE5RG7qxPvQdeh623P46wGLBQKXNPwn'
+  };
+
   const addressPatterns = {
     ETH: /^0x[a-fA-F0-9]{40}$/,
     BSC: /^0x[a-fA-F0-9]{40}$/,
     SOL: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
   };
+
+  // Add Solana transaction verification
+  function verifySolanaTransaction(fromChain, toChain, amount) {
+    const bridgeProgram = SOLANA_BRIDGE_PROGRAMS[toChain];
+    return {
+      isValid: bridgeProgram && amount <= 1000000,
+      programId: bridgeProgram || 'Unknown',
+      estimatedTime: '2-5 minutes',
+      fee: (amount * 0.001).toFixed(4)
+    };
+  }
 
   // Common scam patterns
   const scamPatterns = {
@@ -234,7 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'fake',
       'honeypot'
     ].some(signal => tokenName.toLowerCase().includes(signal));
-    
+
     return !negativeSignals;
   }
 
@@ -279,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'bscGas': '5-7',
       'solGas': '0.001'
     };
-    
+
     Object.entries(networks).forEach(([network, gas]) => {
       document.getElementById(network).textContent = gas;
     });
@@ -298,7 +315,7 @@ document.addEventListener('DOMContentLoaded', () => {
   validateBtn?.addEventListener('click', () => {
     const chain = document.getElementById('chainSelect').value;
     const address = document.getElementById('addressInput').value;
-    
+
     if (validateAddress(chain, address)) {
       displayResult('✅ Valid address format for ' + chain);
     } else {
@@ -309,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkContractBtn = document.getElementById('checkContractBtn');
   checkContractBtn?.addEventListener('click', () => {
     const contract = document.getElementById('contractInput').value;
-    
+
     if (checkContractSafety(contract)) {
       displayResult('✅ Contract address appears safe');
     } else {
@@ -320,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const checkTransactionBtn = document.getElementById('checkTransactionBtn');
   checkTransactionBtn?.addEventListener('click', () => {
     const amount = document.getElementById('amountInput').value;
-    
+
     if (amount > 1000) {
       displayResult('⚠️ High-value transaction detected. Double-check all details!', true);
     } else {
@@ -334,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tokenName = document.getElementById('tokenNameInput')?.value || '';
       const contractCode = document.getElementById('contractCodeInput')?.value || '';
       const alertBanner = document.getElementById('alertBanner');
-      
+
       if (!tokenName || !contractCode) {
         if (alertBanner) {
           alertBanner.className = 'alert-banner high';
@@ -342,23 +359,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return;
       }
-    
+
       const socialSentiment = analyzeSocialSentiment(tokenName);
       const honeypotSafe = checkHoneypotRisk(contractCode);
-      
+
       let riskLevel = 'LOW';
       let message = '✅ Token appears safe. ';
-      
+
       if (!socialSentiment) {
         riskLevel = 'HIGH';
         message = '🚨 WARNING: Negative social signals detected! ';
       }
-      
+
       if (!honeypotSafe) {
         riskLevel = 'HIGH';
         message += '⚠️ Potential honeypot contract detected!';
       }
-      
+
       if (alertBanner) {
         alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
         alertBanner.textContent = message;
