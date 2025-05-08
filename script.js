@@ -94,6 +94,22 @@ document.addEventListener('DOMContentLoaded', () => {
         <button id="checkTransactionBtn">Verify Transaction</button>
       </div>
     </div>
+    <div class="donation-box">
+      <h3>Support Development</h3>
+      <div class="donation-addresses">
+        <div class="address-item">
+          <label>ETH/BSC:</label>
+          <input type="text" value="0x742d35Cc6634C0532925a3b844Bc454e4438f44e" readonly>
+          <button class="copy-btn" onclick="copyAddress(this)">Copy</button>
+        </div>
+        <div class="address-item">
+          <label>SOL:</label>
+          <input type="text" value="DonateSOL12345678901234567890123456789012" readonly>
+          <button class="copy-btn" onclick="copyAddress(this)">Copy</button>
+        </div>
+      </div>
+    </div>
+
     <div class="cross-chain-monitor">
       <h3>Cross-Chain Monitor</h3>
       <div class="monitor-grid">
@@ -313,6 +329,17 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial updates
   updateBridgeStats();
   updateGasTracker();
+
+  // Copy address function
+  window.copyAddress = function(button) {
+    const input = button.previousElementSibling;
+    input.select();
+    document.execCommand('copy');
+    button.textContent = 'Copied!';
+    setTimeout(() => {
+      button.textContent = 'Copy';
+    }, 2000);
+  };
 
   // Event Listeners
   const validateBtn = document.getElementById('validateBtn');
