@@ -98,3 +98,41 @@ input, select {
 .token-analyzer input {
   margin: 5px 0;
 }
+
+.info-panel {
+  background: #f0f8ff;
+  margin: 10px 0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.info-header {
+  background: #007BFF;
+  color: white;
+  padding: 10px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-content {
+  padding: 15px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.info-content.expanded {
+  max-height: 1000px;
+}
+
+.feature-list {
+  text-align: left;
+  margin: 10px 0;
+}
+
+.feature-list li {
+  margin: 5px 0;
+}

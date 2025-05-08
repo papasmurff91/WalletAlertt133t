@@ -4,6 +4,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
   container.className = 'container';
   container.innerHTML = `
     <h1>Cross-Chain Protection System</h1>
+    <div class="info-panel">
+      <div class="info-header">
+        <span>ℹ️ Project Information</span>
+        <span>▼</span>
+      </div>
+      <div class="info-content">
+        <h3>Key Features:</h3>
+        <ul class="feature-list">
+          <li>🔒 Multi-Chain Address Validation (ETH, BSC, SOL)</li>
+          <li>📊 Smart Contract Security Analysis</li>
+          <li>🔍 Token Safety Analysis</li>
+          <li>⚡ Real-time Transaction Guard</li>
+          <li>🚫 Scam Pattern Detection</li>
+          <li>📱 Mobile-responsive Interface</li>
+        </ul>
+        <p><strong>Advantages:</strong> All-in-one solution with real-time validation, no external dependencies, and comprehensive protection against common crypto scams.</p>
+      </div>
+    </div>
     <div class="alert-banner" id="alertBanner"></div>
     <div class="protection-features">
       <div class="token-analyzer">
@@ -39,6 +57,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
   `;
 
   document.body.appendChild(container);
+
+// Info panel toggle functionality
+const infoHeader = document.querySelector('.info-header');
+const infoContent = document.querySelector('.info-content');
+const infoArrow = infoHeader.querySelector('span:last-child');
+
+infoHeader.addEventListener('click', () => {
+  infoContent.classList.toggle('expanded');
+  infoArrow.textContent = infoContent.classList.contains('expanded') ? '▲' : '▼';
+});
 
   // Chain-specific address validation
   const addressPatterns = {
