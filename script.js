@@ -201,24 +201,24 @@ infoHeader.addEventListener('click', () => {
         return;
       }
     
-    const socialSentiment = analyzeSocialSentiment(tokenName);
-    const honeypotSafe = checkHoneypotRisk(contractCode);
-    
-    let riskLevel = 'LOW';
-    let message = '✅ Token appears safe. ';
-    
-    if (!socialSentiment) {
-      riskLevel = 'HIGH';
-      message = '🚨 WARNING: Negative social signals detected! ';
-    }
-    
-    if (!honeypotSafe) {
-      riskLevel = 'HIGH';
-      message += '⚠️ Potential honeypot contract detected!';
-    }
-    
-    const alertBanner = document.getElementById('alertBanner');
-    alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
-    alertBanner.textContent = message;
-  });
-});
+      const socialSentiment = analyzeSocialSentiment(tokenName);
+      const honeypotSafe = checkHoneypotRisk(contractCode);
+      
+      let riskLevel = 'LOW';
+      let message = '✅ Token appears safe. ';
+      
+      if (!socialSentiment) {
+        riskLevel = 'HIGH';
+        message = '🚨 WARNING: Negative social signals detected! ';
+      }
+      
+      if (!honeypotSafe) {
+        riskLevel = 'HIGH';
+        message += '⚠️ Potential honeypot contract detected!';
+      }
+      
+      const alertBanner = document.getElementById('alertBanner');
+      alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
+      alertBanner.textContent = message;
+    });
+  }
