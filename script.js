@@ -221,4 +221,4 @@ infoHeader.addEventListener('click', () => {
       alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
       alertBanner.textContent = message;
     });
-  }
+});
