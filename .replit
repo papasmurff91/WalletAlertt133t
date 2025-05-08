@@ -1,9 +1,9 @@
 entrypoint="index.html"
 hidden=[".config"]
-modules = ["web"]
+modules = ["web", "python-3.12", "nodejs-20"]
 
 [nix]
-channel = "stable-23_11"
+channel = "stable-24_05"
 
 [deployment]
 publicDir = "/"
