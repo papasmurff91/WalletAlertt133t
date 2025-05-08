@@ -31,3 +31,42 @@ button {
 button:hover {
   background-color: #0056b3;
 }
+
+.protection-features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.address-validator,
+.contract-checker,
+.transaction-guard {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+input, select {
+  padding: 8px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  width: 100%;
+}
+
+#resultArea {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+#resultArea.error {
+  background-color: #ffe6e6;
+  color: #d63031;
+}
+
+#resultArea.success {
+  background-color: #e6ffe6;
+  color: #00b894;
+}
