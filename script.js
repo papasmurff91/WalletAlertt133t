@@ -172,8 +172,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
         return;
       }
-    const tokenName = document.getElementById('tokenNameInput').value;
-    const contractCode = document.getElementById('contractCodeInput').value;
     
     const socialSentiment = analyzeSocialSentiment(tokenName);
     const honeypotSafe = checkHoneypotRisk(contractCode);
