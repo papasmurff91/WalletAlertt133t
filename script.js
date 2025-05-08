@@ -1,5 +1,5 @@
 
-document.addEventListener('DOMContentLoaded', (event) => {
+document.addEventListener('DOMContentLoaded', () => {
   const container = document.createElement('div');
   container.className = 'container';
   container.innerHTML = `
@@ -152,7 +152,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
 
   // Event Listeners
-  document.getElementById('validateBtn').addEventListener('click', () => {
+  const validateBtn = document.getElementById('validateBtn');
+  validateBtn?.addEventListener('click', () => {
     const chain = document.getElementById('chainSelect').value;
     const address = document.getElementById('addressInput').value;
     
@@ -163,7 +164,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   });
 
-  document.getElementById('checkContractBtn').addEventListener('click', () => {
+  const checkContractBtn = document.getElementById('checkContractBtn');
+  checkContractBtn?.addEventListener('click', () => {
     const contract = document.getElementById('contractInput').value;
     
     if (checkContractSafety(contract)) {
@@ -173,7 +175,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   });
 
-  document.getElementById('checkTransactionBtn').addEventListener('click', () => {
+  const checkTransactionBtn = document.getElementById('checkTransactionBtn');
+  checkTransactionBtn?.addEventListener('click', () => {
     const amount = document.getElementById('amountInput').value;
     
     if (amount > 1000) {
@@ -183,7 +186,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
   });
 
-  document.getElementById('analyzeTokenBtn').addEventListener('click', () => {
+  const analyzeTokenBtn = document.getElementById('analyzeTokenBtn');
+  analyzeTokenBtn?.addEventListener('click', () => {
     const tokenName = document.getElementById('tokenNameInput').value;
     const contractCode = document.getElementById('contractCodeInput').value;
     
