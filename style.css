@@ -384,7 +384,9 @@ input, select {
   background: #fff;
 }
 
-.dark-mode .address-item input {
+.dark-mode .address-item input,
+.dark-mode input,
+.dark-mode select {
   background: #2d2d2d;
   border-color: #555;
   color: #fff;

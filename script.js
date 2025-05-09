@@ -392,11 +392,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       // Bridge transaction validation
-      const validateBridgeBtn = document.getElementById('validateBridgeBtn');
-      validateBridgeBtn?.addEventListener('click', () => {
-        const fromChain = document.getElementById('fromChain').value;
-        const toChain = document.getElementById('toChain').value;
-        const amount = document.getElementById('bridgeAmountInput').value;
+      if (alertBanner) {
+        alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
+        alertBanner.textContent = message;
+      }
+    });
+  }
+
+  const validateBridgeBtn = document.getElementById('validateBridgeBtn');
+  validateBridgeBtn?.addEventListener('click', () => {
+    const fromChain = document.getElementById('fromChain').value;
+    const toChain = document.getElementById('toChain').value;
+    const amount = document.getElementById('bridgeAmountInput').value;
 
         const bridgeCheck = verifySolanaTransaction(fromChain, toChain, parseFloat(amount));
 
