@@ -169,6 +169,45 @@ h1 {
   transition: color 0.3s ease;
 }
 
+.loading {
+  animation: skeleton-loading 1s linear infinite alternate;
+  border-radius: 4px;
+  min-height: 1.5rem;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  100% {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.pull-to-refresh {
+  height: 60px;
+  margin-top: -60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+
+.pull-to-refresh.visible {
+  transform: translateY(60px);
+}
+
+.error-state {
+  padding: 1rem;
+  background: rgba(255, 99, 71, 0.2);
+  border-radius: 8px;
+  color: #ff6347;
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+
 .stat-value.price-up {
   color: #00ff9d;
 }

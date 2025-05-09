@@ -1,4 +1,16 @@
 // Client-side code with retry logic
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
 async function fetchWithRetry(url, retries = 3, delay = 1000) {
   for (let i = 0; i < retries; i++) {
     try {
@@ -120,6 +132,38 @@ function copyAddress() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const updateInterval = 30000; // 30 seconds
+  
+  // Pull to refresh implementation
+  let touchStart = 0;
+  let touchY = 0;
+  const pullToRefreshElement = document.createElement('div');
+  pullToRefreshElement.className = 'pull-to-refresh';
+  pullToRefreshElement.textContent = 'Pull to refresh';
+  document.body.insertBefore(pullToRefreshElement, document.body.firstChild);
+
+  document.addEventListener('touchstart', (e) => {
+    touchStart = e.touches[0].pageY;
+  }, { passive: true });
+
+  document.addEventListener('touchmove', (e) => {
+    touchY = e.touches[0].pageY;
+    if (document.scrollTop === 0 && touchY > touchStart) {
+      pullToRefreshElement.classList.add('visible');
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  document.addEventListener('touchend', () => {
+    if (pullToRefreshElement.classList.contains('visible')) {
+      pullToRefreshElement.classList.remove('visible');
+      updateAll();
+    }
+  }, { passive: true });
+
+  // Optimize updates with debouncing
+  const debouncedUpdate = debounce(() => {
+    updateAll();
+  }, 500);
 
   // Theme toggle functionality
   const themeToggle = document.getElementById('themeToggle');
