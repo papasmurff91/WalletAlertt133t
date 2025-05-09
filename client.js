@@ -73,6 +73,17 @@ async function updateTwitterMetrics() {
 }
 
 // Initialize UI with error boundary
+function copyAddress() {
+  const address = document.querySelector('#solanaAddress code').textContent;
+  navigator.clipboard.writeText(address)
+    .then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    })
+    .catch(err => console.error('Failed to copy:', err));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   const updateInterval = 30000; // 30 seconds
   
