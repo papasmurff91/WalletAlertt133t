@@ -109,6 +109,17 @@ async function getTwitterMetrics() {
   }
 }
 
+const { findSuspiciousAddresses } = require('./twitter_monitor');
+
+app.get('/api/suspicious-addresses', async (req, res) => {
+  try {
+    const addresses = await findSuspiciousAddresses();
+    res.json(addresses);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch suspicious addresses' });
+  }
+});
+
 app.get('/api/twitter-metrics', async (req, res) => {
   try {
     const username = process.env.TWITTER_USERNAME;

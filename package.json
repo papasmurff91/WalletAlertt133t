@@ -9,10 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@solana/web3.js": "^1.98.2",
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
     "express-session": "^1.18.1",
-    "oauth": "^0.10.2"
+    "oauth": "^0.10.2",
+    "twitter-api-v2": "^1.23.0"
   },
   "description": ""
 }
