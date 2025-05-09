@@ -100,7 +100,15 @@
     </div>
 
     <div class="metrics-panel">
-      <h2>Twitter Metrics</h2>
+      <h2>Twitter Actions</h2>
+      <div class="twitter-actions">
+        <button id="login" class="twitter-btn">Login with Twitter</button>
+        <div class="tweet-composer">
+          <input id="tweetText" type="text" placeholder="Write a tweet" class="tweet-input">
+          <button id="tweet" class="twitter-btn">Send Tweet</button>
+        </div>
+        <div id="status" class="status-message"></div>
+      </div>
       <div class="metrics-container">
         <pre id="twitterMetrics">Loading...</pre>
       </div>

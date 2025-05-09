@@ -159,6 +159,42 @@ function copyToClipboard(text) {
 const debouncedUpdate = debounce(() => updateAll(), 500);
 
 document.addEventListener('DOMContentLoaded', () => {
+  const loginBtn = document.getElementById('login');
+  const tweetBtn = document.getElementById('tweet');
+  const tweetInput = document.getElementById('tweetText');
+  const statusDiv = document.getElementById('status');
+
+  loginBtn.addEventListener('click', () => {
+    window.location.href = '/twitter/login';
+  });
+
+  tweetBtn.addEventListener('click', async () => {
+    const tweetText = tweetInput.value.trim();
+    if (!tweetText) {
+      statusDiv.textContent = 'Please enter a tweet';
+      return;
+    }
+
+    try {
+      const response = await fetch('/tweet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ text: tweetText })
+      });
+      
+      const result = await response.text();
+      statusDiv.textContent = result;
+      if (response.ok) {
+        tweetInput.value = '';
+      }
+    } catch (error) {
+      statusDiv.textContent = 'Failed to send tweet';
+      console.error('Tweet error:', error);
+    }
+  });
+
   const updateInterval = 30000;
 
   // Theme handling
