@@ -130,17 +130,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const updateAll = () => {
-    Promise.allSettled([
-      updateBridgeStats().catch(err => displayError('bridgeVolume')),
-      updateGasPrices().catch(err => {
-        ['ethGas', 'bscGas', 'solGas'].forEach(id => displayError(id));
-      }),
-      updateTwitterMetrics().catch(err => displayError('twitterMetrics')),
-      updateSwapStats().catch(err => {
-        ['radiumSwaps', 'jupiterSwaps'].forEach(id => displayError(id));
-      })
-    ]).catch(console.error);
+  const updateAll = async () => {
+    try {
+      await Promise.allSettled([
+        updateBridgeStats().catch(err => {
+          console.error('Bridge stats error:', err);
+          displayError('bridgeVolume', 'Service unavailable');
+        }),
+        updateGasPrices().catch(err => {
+          console.error('Gas prices error:', err);
+          ['ethGas', 'bscGas', 'solGas'].forEach(id => displayError(id, 'Service unavailable'));
+        }),
+        updateTwitterMetrics().catch(err => {
+          console.error('Twitter metrics error:', err);
+          displayError('twitterMetrics', 'Service unavailable');
+        }),
+        updateSwapStats().catch(err => {
+          console.error('Swap stats error:', err);
+          ['radiumSwaps', 'jupiterSwaps'].forEach(id => displayError(id, 'Service unavailable'));
+          document.querySelectorAll('.alert-content').forEach(el => {
+            el.textContent = 'Service unavailable';
+          });
+        })
+      ]);
+    } catch (err) {
+      console.error('Update failed:', err);
+    }
   };
 
   async function updateSwapStats() {
