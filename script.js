@@ -62,6 +62,40 @@ app.get('/twitter/callback', (req, res) => {
 });
 
 // API routes
+// Secure Twitter metrics request
+async function getTwitterMetrics() {
+  const username = process.env.TWITTER_USERNAME;
+  const password = process.env.TWITTER_PASSWORD;
+  const accountName = process.env.TWITTER_ACCOUNT_NAME;
+  
+  const auth = Buffer.from(`${username}:${password}`).toString('base64');
+  
+  try {
+    const response = await fetch(
+      `https://gnip-api.x.com/metrics/usage/accounts/${accountName}.json?bucket=month`,
+      {
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error('Twitter metrics request failed:', error);
+    throw error;
+  }
+}
+
+app.get('/api/twitter-metrics', async (req, res) => {
+  try {
+    const metrics = await getTwitterMetrics();
+    res.json(metrics);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch Twitter metrics' });
+  }
+});
+
 app.get('/api/bridge-stats', (req, res) => {
   const volume = Math.floor(Math.random() * 1000000);
   const tx = Math.floor(Math.random() * 100);
