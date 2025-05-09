@@ -92,6 +92,37 @@ document.addEventListener('DOMContentLoaded', () => {
     ]).catch(console.error);
   };
 
+  async function updateSwapStats() {
+    try {
+      const data = await fetchWithRetry('/api/swap-stats');
+      if (!data) return;
+      
+      const radiumElement = document.getElementById('radiumSwaps');
+      const jupiterElement = document.getElementById('jupiterSwaps');
+      
+      if (radiumElement && data.radium) {
+        const trend = data.radium.trend > 0 ? '↗️' : '↘️';
+        radiumElement.textContent = `$${data.radium.volume.toLocaleString()} ${trend}`;
+      }
+      
+      if (jupiterElement && data.jupiter) {
+        const trend = data.jupiter.trend > 0 ? '↗️' : '↘️';
+        jupiterElement.textContent = `$${data.jupiter.volume.toLocaleString()} ${trend}`;
+      }
+    } catch (err) {
+      console.error('Swap stats update failed:', err);
+    }
+  }
+
+  const updateAll = () => {
+    Promise.allSettled([
+      updateBridgeStats(),
+      updateGasPrices(),
+      updateTwitterMetrics(),
+      updateSwapStats()
+    ]).catch(console.error);
+  };
+
   updateAll();
   setInterval(updateAll, updateInterval);
 });

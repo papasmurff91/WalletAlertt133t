@@ -181,6 +181,16 @@ app.get('/api/gas-prices', (req, res) => {
   res.json(networks);
 });
 
+app.get('/api/swap-stats', (req, res) => {
+  const swapStats = {
+    'radium': { volume: Math.floor(Math.random() * 50000), trend: Math.random() > 0.5 ? 1 : -1 },
+    'jupiter': { volume: Math.floor(Math.random() * 100000), trend: Math.random() > 0.5 ? 1 : -1 },
+    'timestamp': Date.now()
+  };
+  res.set('Cache-Control', 'no-store');
+  res.json(swapStats);
+});
+
 // Serve index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
