@@ -1,45 +1,89 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // Security: XSS prevention
+  const sanitizeInput = (input) => {
+    return input.replace(/[<>]/g, '');
+  };
+
+  // Security: Rate limiting
+  const rateLimiter = {
+    lastCall: 0,
+    minInterval: 1000,
+    check() {
+      const now = Date.now();
+      if (now - this.lastCall < this.minInterval) {
+        return false;
+      }
+      this.lastCall = now;
+      return true;
+    }
+  };
+
+  const createCollapsibleSection = (title, content) => {
+    const section = document.createElement('div');
+    section.className = 'collapsible-section';
+
+    const header = document.createElement('div');
+    header.className = 'section-header';
+    header.innerHTML = `${title}<span>▼</span>`;
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'section-content';
+    contentDiv.innerHTML = content;
+
+    header.addEventListener('click', () => {
+      contentDiv.classList.toggle('expanded');
+      header.querySelector('span').textContent = 
+        contentDiv.classList.contains('expanded') ? '▲' : '▼';
+    });
+
+    section.appendChild(header);
+    section.appendChild(contentDiv);
+    return section;
+  };
+
+  // Security: Input validation patterns
+  const patterns = {
+    address: {
+      ETH: /^0x[a-fA-F0-9]{40}$/,
+      BSC: /^0x[a-fA-F0-9]{40}$/,
+      SOL: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
+    },
+    amount: /^\d+(\.\d{1,18})?$/,
+    contractAddress: /^0x[a-fA-F0-9]{40}$/
+  };
+
+  const validateInput = (input, pattern) => {
+    return pattern.test(input);
+  };
+
   const container = document.createElement('div');
   container.className = 'container';
-  container.innerHTML = `
-    <h1>Cross-Chain Bridge Dashboard</h1>
-    <div class="network-status">
-      <div class="network-item">
-        <span class="status-dot active"></span>
-        Ethereum
-      </div>
-      <div class="network-item">
-        <span class="status-dot active"></span>
-        BSC
-      </div>
-      <div class="network-item">
-        <span class="status-dot active"></span>
-        Solana
-      </div>
-    </div>
-    <div class="info-panel">
-      <div class="info-header">
-        <span>ℹ️ Project Information</span>
-        <span>▼</span>
-      </div>
-      <div class="info-content">
-        <h3>Key Features:</h3>
-        <ul class="feature-list">
-          <li>🔒 Multi-Chain Address Validation (ETH, BSC, SOL)</li>
-          <li>📊 Smart Contract Security Analysis</li>
-          <li>🔍 Token Safety Analysis</li>
-          <li>⚡ Real-time Transaction Guard</li>
-          <li>🚫 Scam Pattern Detection</li>
-          <li>📱 Mobile-responsive Interface</li>
-        </ul>
-        <p><strong>Advantages:</strong> All-in-one solution with real-time validation, no external dependencies, and comprehensive protection against common crypto scams.</p>
-      </div>
-    </div>
-    <div class="alert-banner" id="alertBanner"></div>
-    <div class="protection-features">
-      <div class="bridge-monitor">
-        <h3>Bridge Transaction Monitor</h3>
-        <div class="chain-selector">
+
+  // Main content structure
+  const sections = [
+    {
+      title: 'Network Status',
+      content: `
+        <div class="network-status">
+          <div class="network-item">
+            <span class="status-dot active"></span>
+            Ethereum
+          </div>
+          <div class="network-item">
+            <span class="status-dot active"></span>
+            BSC
+          </div>
+          <div class="network-item">
+            <span class="status-dot active"></span>
+            Solana
+          </div>
+        </div>
+      `
+    },
+    {
+      title: 'Bridge Monitor',
+      content: `
+        <div class="bridge-monitor">
           <select id="fromChain">
             <option value="ETH">Ethereum</option>
             <option value="BSC">BSC</option>
@@ -51,90 +95,82 @@ document.addEventListener('DOMContentLoaded', () => {
             <option value="ETH">Ethereum</option>
             <option value="SOL">Solana</option>
           </select>
+          <input type="text" id="bridgeAmount" placeholder="Enter amount">
+          <button id="validateBridge">Validate Bridge Transaction</button>
         </div>
-        <input type="text" id="bridgeAmountInput" placeholder="Enter amount to bridge">
-        <button id="validateBridgeBtn">Validate Bridge Transaction</button>
-      </div>
+      `
+    },
+    {
+      title: 'Address Validator',
+      content: `
+        <div class="address-validator">
+          <select id="chainSelect">
+            <option value="ETH">Ethereum</option>
+            <option value="BSC">BSC</option>
+            <option value="SOL">Solana</option>
+          </select>
+          <input type="text" id="addressInput" placeholder="Enter address">
+          <button id="validateAddress">Validate Address</button>
+        </div>
+      `
+    }
+  ];
 
-      <div class="liquidity-monitor">
-        <h3>Bridge Liquidity Monitor</h3>
-        <div class="liquidity-stats">
-          <div>ETH-BSC: <span id="ethBscLiquidity">loading...</span></div>
-          <div>BSC-SOL: <span id="bscSolLiquidity">loading...</span></div>
-          <div>ETH-SOL: <span id="ethSolLiquidity">loading...</span></div>
-        </div>
-      </div>
-
-      <div class="token-analyzer">
-        <h3>Token Safety Analyzer</h3>
-        <input type="text" id="tokenNameInput" placeholder="Enter token name">
-        <input type="text" id="contractCodeInput" placeholder="Enter contract code">
-        <button id="analyzeTokenBtn">Analyze Token</button>
-      </div>
-      <div class="address-validator">
-        <h3>Chain Address Validator</h3>
-        <select id="chainSelect">
-          <option value="ETH">Ethereum</option>
-          <option value="BSC">Binance Smart Chain</option>
-          <option value="SOL">Solana</option>
-        </select>
-        <input type="text" id="addressInput" placeholder="Enter wallet address">
-        <button id="validateBtn">Validate Address</button>
-      </div>
-
-      <div class="contract-checker">
-        <h3>Smart Contract Verification</h3>
-        <input type="text" id="contractInput" placeholder="Enter contract address">
-        <button id="checkContractBtn">Check Contract</button>
-      </div>
-
-      <div class="transaction-guard">
-        <h3>Transaction Guard</h3>
-        <input type="number" id="amountInput" placeholder="Enter amount">
-        <button id="checkTransactionBtn">Verify Transaction</button>
-      </div>
-    </div>
-    <div class="donation-box">
-      <h3>Support Development</h3>
-      <div class="donation-addresses">
-        <div class="address-item">
-          <label>ETH/BSC:</label>
-          <input type="text" value="0x742d35Cc6634C0532925a3b844Bc454e4438f44e" readonly>
-          <button class="copy-btn" onclick="copyAddress(this)">Copy</button>
-        </div>
-        <div class="address-item">
-          <label>SOL:</label>
-          <input type="text" value="DonateSOL12345678901234567890123456789012" readonly>
-          <button class="copy-btn" onclick="copyAddress(this)">Copy</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="cross-chain-monitor">
-      <h3>Cross-Chain Monitor</h3>
-      <div class="monitor-grid">
-        <div class="bridge-status">
-          <h4>Bridge Status</h4>
-          <div id="bridgeHealth">Healthy ✅</div>
-          <div class="bridge-stats">
-            <div>Total Volume: <span id="bridgeVolume">$0</span></div>
-            <div>24h Transactions: <span id="bridgeTx">0</span></div>
-          </div>
-        </div>
-        <div class="gas-tracker">
-          <h4>Gas Tracker</h4>
-          <div class="gas-grid">
-            <div>ETH: <span id="ethGas">--</span></div>
-            <div>BSC: <span id="bscGas">--</span></div>
-            <div>SOL: <span id="solGas">--</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div id="resultArea"></div>
-  `;
+  // Create and append sections
+  sections.forEach(section => {
+    container.appendChild(
+      createCollapsibleSection(section.title, section.content)
+    );
+  });
 
   document.body.appendChild(container);
+
+  // Event listeners with security checks
+  document.getElementById('validateAddress')?.addEventListener('click', () => {
+    if (!rateLimiter.check()) {
+      displayResult('Please wait before making another request', true);
+      return;
+    }
+
+    const chain = document.getElementById('chainSelect').value;
+    const address = sanitizeInput(document.getElementById('addressInput').value);
+
+    if (!validateInput(address, patterns.address[chain])) {
+      displayResult('Invalid address format', true);
+      return;
+    }
+
+    displayResult('Valid address format');
+  });
+
+  document.getElementById('validateBridge')?.addEventListener('click', () => {
+    if (!rateLimiter.check()) {
+      displayResult('Please wait before making another request', true);
+      return;
+    }
+
+    const amount = sanitizeInput(document.getElementById('bridgeAmount').value);
+
+    if (!validateInput(amount, patterns.amount)) {
+      displayResult('Invalid amount format', true);
+      return;
+    }
+
+    displayResult('Bridge transaction validated');
+  });
+
+  function displayResult(message, isError = false) {
+    const resultArea = document.getElementById('resultArea') || 
+      (() => {
+        const div = document.createElement('div');
+        div.id = 'resultArea';
+        container.appendChild(div);
+        return div;
+      })();
+
+    resultArea.textContent = message;
+    resultArea.className = isError ? 'error' : 'success';
+  }
 
   // Enable dark mode by default
   document.body.classList.add('dark-mode');
@@ -189,41 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     document.getElementById('riskLevel').textContent = riskLevel;
-  }
-
-  // Info panel toggle functionality
-  const infoHeader = document.querySelector('.info-header');
-  const infoContent = document.querySelector('.info-content');
-  const infoArrow = infoHeader.querySelector('span:last-child');
-
-  infoHeader.addEventListener('click', () => {
-    infoContent.classList.toggle('expanded');
-    infoArrow.textContent = infoContent.classList.contains('expanded') ? '▲' : '▼';
-  });
-
-  // Chain-specific address validation
-  // Solana Program IDs for cross-chain bridges
-  const SOLANA_BRIDGE_PROGRAMS = {
-    ETH: 'wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb',
-    BSC: 'WnFt12ZrnzZrFZkt2xsNsaNWoQribnuQ5B5FrjnMRXY',
-    AVAX: 'KdNhxoXZxX5DqE5RG7qxPvQdeh623P46wGLBQKXNPwn'
-  };
-
-  const addressPatterns = {
-    ETH: /^0x[a-fA-F0-9]{40}$/,
-    BSC: /^0x[a-fA-F0-9]{40}$/,
-    SOL: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/
-  };
-
-  // Add Solana transaction verification
-  function verifySolanaTransaction(fromChain, toChain, amount) {
-    const bridgeProgram = SOLANA_BRIDGE_PROGRAMS[toChain];
-    return {
-      isValid: bridgeProgram && amount <= 1000000,
-      programId: bridgeProgram || 'Unknown',
-      estimatedTime: '2-5 minutes',
-      fee: (amount * 0.001).toFixed(4)
-    };
   }
 
   // Common scam patterns
@@ -281,31 +282,19 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   }
 
-  function validateAddress(chain, address) {
-    return addressPatterns[chain].test(address);
-  }
-
   function checkContractSafety(address) {
-  if (!address || typeof address !== 'string') {
-    return false;
-  }
+    if (!address || typeof address !== 'string') {
+      return false;
+    }
 
-  const suspiciousPatterns = [
-    address.length !== 42,
-    !/^0x[a-fA-F0-9]{40}$/.test(address),
-    /0{8,}/.test(address),
-    /([a-fA-F0-9])\1{7,}/.test(address)
-  ];
-  return !suspiciousPatterns.some(pattern => pattern);
-}
-
-  function displayResult(message, isError = false) {
-  const resultArea = document.getElementById('resultArea');
-  if (resultArea) {
-    resultArea.textContent = message;
-    resultArea.className = isError ? 'error' : 'success';
+    const suspiciousPatterns = [
+      address.length !== 42,
+      !/^0x[a-fA-F0-9]{40}$/.test(address),
+      /0{8,}/.test(address),
+      /([a-fA-F0-9])\1{7,}/.test(address)
+    ];
+    return !suspiciousPatterns.some(pattern => pattern);
   }
-}
 
   // Cross-chain monitoring simulation
   function updateBridgeStats() {
@@ -331,10 +320,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(updateBridgeStats, 5000);
   setInterval(updateGasTracker, 10000);
 
-  // Initial updates
-  updateBridgeStats();
-  updateGasTracker();
-
   // Copy address function
   window.copyAddress = function(button) {
     const input = button.previousElementSibling;
@@ -346,110 +331,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
   };
 
-  // Event Listeners
-  const validateBtn = document.getElementById('validateBtn');
-  validateBtn?.addEventListener('click', () => {
-    const chain = document.getElementById('chainSelect').value;
-    const address = document.getElementById('addressInput').value;
-
-    if (validateAddress(chain, address)) {
-      displayResult('✅ Valid address format for ' + chain);
-    } else {
-      displayResult('❌ Invalid address format', true);
-    }
-  });
-
-  const checkContractBtn = document.getElementById('checkContractBtn');
-  checkContractBtn?.addEventListener('click', () => {
-    const contract = document.getElementById('contractInput').value;
-
-    if (checkContractSafety(contract)) {
-      displayResult('✅ Contract address appears safe');
-    } else {
-      displayResult('⚠️ Suspicious contract detected', true);
-    }
-  });
-
-  const checkTransactionBtn = document.getElementById('checkTransactionBtn');
-  checkTransactionBtn?.addEventListener('click', () => {
-    const amount = document.getElementById('amountInput').value;
-
-    if (amount > 1000) {
-      displayResult('⚠️ High-value transaction detected. Double-check all details!', true);
-    } else {
-      displayResult('✅ Transaction amount within normal range');
-    }
-  });
-
   const analyzeTokenBtn = document.getElementById('analyzeTokenBtn');
-  if (analyzeTokenBtn) {
-    analyzeTokenBtn.addEventListener('click', () => {
-      const tokenName = document.getElementById('tokenNameInput')?.value || '';
-      const contractCode = document.getElementById('contractCodeInput')?.value || '';
-      const alertBanner = document.getElementById('alertBanner');
+  const validateBridgeBtn = document.getElementById('validateBridge');
 
-      if (!tokenName || !contractCode) {
-        if (alertBanner) {
-          alertBanner.className = 'alert-banner high';
-          alertBanner.textContent = '⚠️ Please fill in all fields';
-        }
-        return;
-      }
+  function verifySolanaTransaction(fromChain, toChain, amount) {
+    const SOLANA_BRIDGE_PROGRAMS = {
+      ETH: 'wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb',
+      BSC: 'WnFt12ZrnzZrFZkt2xsNsaNWoQribnuQ5B5FrjnMRXY',
+      AVAX: 'KdNhxoXZxX5DqE5RG7qxPvQdeh623P46wGLBQKXNPwn'
+    };
 
-    // Rate limiting
-  const rateLimiter = {
-    lastCall: 0,
-    minInterval: 1000, // 1 second
-  };
-
-  // Bridge transaction validation
-  const validateBridgeBtn = document.getElementById('validateBridgeBtn');
-  validateBridgeBtn?.addEventListener('click', () => {
-    const now = Date.now();
-    if (now - rateLimiter.lastCall < rateLimiter.minInterval) {
-      displayResult('⚠️ Please wait before making another request', true);
-      return;
-    }
-    rateLimiter.lastCall = now;
-
-    const fromChain = document.getElementById('fromChain').value;
-    const toChain = document.getElementById('toChain').value;
-    const amount = document.getElementById('bridgeAmountInput').value;
-
-        const bridgeCheck = verifySolanaTransaction(fromChain, toChain, parseFloat(amount));
-
-        const resultArea = document.getElementById('resultArea');
-        if (resultArea) {
-          resultArea.innerHTML = `
-            Bridge Status: ${bridgeCheck.isValid ? '✅ Safe' : '❌ Risky'}<br>
-            Program ID: ${bridgeCheck.programId}<br>
-            Est. Time: ${bridgeCheck.estimatedTime}<br>
-            Fee: ${bridgeCheck.fee} ${fromChain}
-          `;
-          resultArea.className = bridgeCheck.isValid ? 'success' : 'error';
-        }
-      });
-
-      const socialSentiment = analyzeSocialSentiment(tokenName);
-      const honeypotSafe = checkHoneypotRisk(contractCode);
-
-      let riskLevel = 'LOW';
-      let message = '✅ Token appears safe. ';
-
-      if (!socialSentiment) {
-        riskLevel = 'HIGH';
-        message = '🚨 WARNING: Negative social signals detected! ';
-      }
-
-      if (!honeypotSafe) {
-        riskLevel = 'HIGH';
-        message += '⚠️ Potential honeypot contract detected!';
-      }
-
-      if (alertBanner) {
-        alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
-        alertBanner.textContent = message;
-      }
-    });
+    const bridgeProgram = SOLANA_BRIDGE_PROGRAMS[toChain];
+    return {
+      isValid: bridgeProgram && amount <= 1000000,
+      programId: bridgeProgram || 'Unknown',
+      estimatedTime: '2-5 minutes',
+      fee: (amount * 0.001).toFixed(4)
+    };
   }
 });

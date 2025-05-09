@@ -5,6 +5,7 @@
   --text-primary: #FFFFFF;
   --text-secondary: #A5A5A5;
   --border-color: #3C3C3C;
+  --secure-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 html, body {
@@ -25,9 +26,40 @@ html, body {
   background-color: var(--card-bg);
   padding: 2rem;
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--secure-shadow);
   max-width: 960px;
   width: 95%;
+}
+
+.collapsible-section {
+  margin: 1rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.section-header {
+  background: var(--solflare-gradient);
+  padding: 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  font-weight: 600;
+}
+
+.section-content {
+  padding: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  background: var(--card-bg);
+}
+
+.section-content.expanded {
+  padding: 1rem;
+  max-height: 1000px;
 }
 
 .network-status {
@@ -52,14 +84,12 @@ html, body {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #gray;
+  background: var(--solflare-gradient);
+  opacity: 0.5;
 }
 
 .status-dot.active {
-  background: var(--solflare-gradient);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+  opacity: 1;
 }
 
 .chain-selector {
@@ -96,7 +126,7 @@ button {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 button:hover {
@@ -126,41 +156,43 @@ input, select {
   padding: 1rem;
   border-radius: 12px;
   font-size: 1rem;
-  width: 100%;
+  width: calc(100% - 2rem);
   margin: 0.5rem 0;
 }
 
 #resultArea {
-  margin-top: 20px;
-  padding: 10px;
-  border-radius: 4px;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
 #resultArea.error {
-  background-color: #ffe6e6;
-  color: #d63031;
+  background: rgba(255, 69, 69, 0.1);
+  color: #FF4545;
 }
 
 #resultArea.success {
-  background-color: #e6ffe6;
-  color: #00b894;
+  background: rgba(20, 241, 149, 0.1);
+  color: #14F195;
 }
 
 .alert-banner {
-  padding: 10px;
-  margin: 10px 0;
-  border-radius: 4px;
-  font-weight: bold;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
 }
 
 .alert-banner.high {
-  background-color: #ff4d4d;
-  color: white;
+  background: rgba(255, 69, 69, 0.1);
+  color: #FF4545;
 }
 
 .alert-banner.low {
-  background-color: #4CAF50;
-  color: white;
+  background: rgba(20, 241, 149, 0.1);
+  color: #14F195;
 }
 
 .token-analyzer {
@@ -395,6 +427,9 @@ input, select {
   border-radius: 12px;
   padding: 1rem;
   margin: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .address-item input {
