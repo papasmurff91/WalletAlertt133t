@@ -1,6 +1,6 @@
-entrypoint="index.html"
 hidden=[".config"]
-modules = ["web", "python-3.12", "nodejs-20"]
+modules = ["nodejs-20", "web"]
+run = "node index.js"
 
 [nix]
 channel = "stable-24_05"
@@ -9,6 +9,7 @@ packages = ["yakut", "try"]
 [deployment]
 publicDir = "/"
 deploymentTarget = "static"
+run = ["sh", "-c", "node index.js"]
 
 [workflows]
 runButton = "Run Tests"
