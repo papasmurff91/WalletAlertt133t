@@ -1,5 +1,6 @@
 :root {
   --primary-gradient: linear-gradient(135deg, #6e8efb, #a777e3);
+  --warning-gradient: linear-gradient(135deg, #ff6b6b, #feca57);
   --card-bg: rgba(255, 255, 255, 0.1);
   --text-primary: #FFFFFF;
   --text-secondary: #A5A5A5;
@@ -28,6 +29,51 @@
   padding: 0.5rem;
   background: transparent;
   border: none;
+
+.suspicious-actors-alert {
+  background: var(--warning-gradient);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  color: white;
+  box-shadow: 0 4px 15px rgba(255, 107, 107, 0.2);
+}
+
+.suspicious-actors-alert h2 {
+  margin: 0 0 1rem 0;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.actors-list {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.actor-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.actor-item:last-child {
+  margin-bottom: 0;
+}
+
+.actor-score {
+  font-weight: bold;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
   color: var(--text-primary);
   font-size: 1.2rem;
 }

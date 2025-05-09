@@ -56,6 +56,23 @@ async function updateGasPrices() {
   }
 }
 
+async function updateSuspiciousActors() {
+  try {
+    const data = await fetchWithRetry('/api/suspicious-actors');
+    const actorsElement = document.getElementById('suspiciousActors');
+    if (actorsElement && data) {
+      actorsElement.innerHTML = data.length ? data.map(actor => `
+        <div class="actor-item">
+          <span class="actor-handle">@${actor.authorId}</span>
+          <span class="actor-score">Risk Score: ${actor.score}</span>
+        </div>
+      `).join('') : 'No suspicious activity detected';
+    }
+  } catch (err) {
+    console.error('Suspicious actors update failed:', err);
+  }
+}
+
 async function updateTwitterMetrics() {
   try {
     const data = await fetchWithRetry('/api/twitter-metrics');
@@ -188,6 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateAll = async () => {
     try {
       await Promise.allSettled([
+        updateSuspiciousActors().catch(err => {
+          console.error('Suspicious actors error:', err);
+          displayError('suspiciousActors', 'Service unavailable');
+        }),
         updateBridgeStats().catch(err => {
           console.error('Bridge stats error:', err);
           displayError('bridgeVolume', 'Service unavailable');

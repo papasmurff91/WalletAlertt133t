@@ -55,6 +55,68 @@ async function isSuspiciousAddress(address) {
   }
 }
 
+async function getSuspiciousActors() {
+  const actorsMap = new Map();
+  
+  function calculateSuspiciousScore(tweet, engagement) {
+    let score = 0;
+    // Check for suspicious patterns
+    if (tweet.toLowerCase().includes('airdrop') && tweet.toLowerCase().includes('free')) score += 2;
+    if (tweet.match(/(0x|sol:)[a-zA-Z0-9]{32,}/g)) score += 3;
+    if (engagement.likes < 2 && tweet.includes('http')) score += 2;
+    if (tweet.match(/@\w+/g)?.length > 5) score += 2;
+    return score;
+  }
+
+  try {
+    const client = new TwitterApi({
+      appKey: process.env.TWITTER_API_KEY,
+      appSecret: process.env.TWITTER_API_SECRET,
+      accessToken: process.env.TWITTER_ACCESS_TOKEN,
+      accessSecret: process.env.TWITTER_ACCESS_SECRET,
+    });
+
+    const tweets = await client.v2.search('solana scam OR hack OR fake', {
+      'tweet.fields': ['created_at', 'public_metrics', 'author_id'],
+      'user.fields': ['username'],
+      max_results: 100
+    });
+
+    for (const tweet of tweets.data || []) {
+      const engagement = await getEngagementMetrics(tweet);
+      const suspiciousScore = calculateSuspiciousScore(tweet.text, engagement);
+      
+      if (suspiciousScore > 4) {
+        if (!actorsMap.has(tweet.author_id)) {
+          actorsMap.set(tweet.author_id, {
+            score: suspiciousScore,
+            tweets: [],
+            engagementTotal: 0
+          });
+        }
+        
+        const actor = actorsMap.get(tweet.author_id);
+        actor.tweets.push(tweet.text);
+        actor.engagementTotal += engagement.likes + engagement.retweets;
+        actor.score += suspiciousScore;
+      }
+    }
+
+    return Array.from(actorsMap.entries())
+      .sort((a, b) => b[1].score - a[1].score)
+      .slice(0, 5)
+      .map(([authorId, data]) => ({
+        authorId,
+        score: data.score,
+        tweets: data.tweets,
+        engagement: data.engagementTotal
+      }));
+  } catch (err) {
+    console.error('Error getting suspicious actors:', err);
+    return [];
+  }
+}
+
 async function findSuspiciousAddresses() {
   const client = new TwitterApi({
     appKey: process.env.TWITTER_API_KEY,

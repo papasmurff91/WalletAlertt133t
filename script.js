@@ -120,6 +120,17 @@ app.get('/api/suspicious-addresses', async (req, res) => {
   }
 });
 
+app.get('/api/suspicious-actors', async (req, res) => {
+  try {
+    const { getSuspiciousActors } = require('./twitter_monitor');
+    const actors = await getSuspiciousActors();
+    res.json(actors);
+  } catch (error) {
+    console.error('Suspicious actors error:', error);
+    res.status(500).json({ error: 'Failed to fetch suspicious actors' });
+  }
+});
+
 app.get('/api/twitter-metrics', async (req, res) => {
   try {
     const { findSuspiciousAddresses, analyzeSentiment } = require('./twitter_monitor');
