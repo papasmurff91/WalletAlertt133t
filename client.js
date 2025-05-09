@@ -11,7 +11,6 @@ function debounce(func, wait) {
   };
 }
 
-// Add mobile touch handling
 let touchStartY = 0;
 let touchEndY = 0;
 const minSwipeDistance = 50;
@@ -82,58 +81,52 @@ const updateFunctions = {
     });
   },
 
-  async twitterMetrics() {
-    const data = await fetchWithRetry('/api/twitter-metrics');
-    const element = document.getElementById('twitterMetrics');
-    if (element && data) {
-      element.textContent = JSON.stringify(data, null, 2);
+  async suspiciousActors() {
+    const data = await fetchWithRetry('/api/suspicious-actors');
+    const actorsElement = document.getElementById('suspiciousActors');
+    if (actorsElement && data) {
+      actorsElement.innerHTML = data.length ? data.map(actor => `
+        <div class="actor-item">
+          <span class="actor-handle">@${actor.authorId}</span>
+          <span class="actor-score">Risk Score: ${actor.score}</span>
+        </div>
+      `).join('') : 'No suspicious activity detected';
     }
   },
-  async suspiciousActors() {
-      const data = await fetchWithRetry('/api/suspicious-actors');
-      const actorsElement = document.getElementById('suspiciousActors');
-      if (actorsElement && data) {
-        actorsElement.innerHTML = data.length ? data.map(actor => `
-          <div class="actor-item">
-            <span class="actor-handle">@${actor.authorId}</span>
-            <span class="actor-score">Risk Score: ${actor.score}</span>
-          </div>
-        `).join('') : 'No suspicious activity detected';
-      }
-    },
-    async swapStats() {
-      try {
-        const data = await fetchWithRetry('/api/swap-stats');
-        if (!data) return;
-  
-        // Check price alerts
-        const currentPrice = (data.radium?.volume || 0) / 100; // Example price calculation
-        priceAlerts.forEach(alert => {
-          if ((alert.direction === 'above' && currentPrice > alert.price) ||
-              (alert.direction === 'below' && currentPrice < alert.price)) {
-            new Notification(`Price Alert: $${currentPrice}`, {
-              body: `Price is ${alert.direction} your target of $${alert.price}`,
-              icon: '/generated-icon.png'
-            });
-          }
-        });
-  
-        const radiumElement = document.getElementById('radiumSwaps');
-        const jupiterElement = document.getElementById('jupiterSwaps');
-  
-        if (radiumElement && data.radium) {
-          const trend = data.radium.trend > 0 ? '↗️' : '↘️';
-          radiumElement.textContent = `$${data.radium.volume.toLocaleString()} ${trend}`;
+
+  async swapStats() {
+    try {
+      const data = await fetchWithRetry('/api/swap-stats');
+      if (!data) return;
+
+      const currentPrice = (data.radium?.volume || 0) / 100;
+
+      priceAlerts.forEach(alert => {
+        if ((alert.direction === 'above' && currentPrice > alert.price) ||
+            (alert.direction === 'below' && currentPrice < alert.price)) {
+          new Notification(`Price Alert: $${currentPrice}`, {
+            body: `Price is ${alert.direction} your target of $${alert.price}`,
+            icon: '/generated-icon.png'
+          });
         }
-  
-        if (jupiterElement && data.jupiter) {
-          const trend = data.jupiter.trend > 0 ? '↗️' : '↘️';
-          jupiterElement.textContent = `$${data.jupiter.volume.toLocaleString()} ${trend}`;
-        }
-      } catch (err) {
-        console.error('Swap stats update failed:', err);
+      });
+
+      const radiumElement = document.getElementById('radiumSwaps');
+      const jupiterElement = document.getElementById('jupiterSwaps');
+
+      if (radiumElement && data.radium) {
+        const trend = data.radium.trend > 0 ? '↗️' : '↘️';
+        radiumElement.textContent = `$${data.radium.volume.toLocaleString()} ${trend}`;
       }
+
+      if (jupiterElement && data.jupiter) {
+        const trend = data.jupiter.trend > 0 ? '↗️' : '↘️';
+        jupiterElement.textContent = `$${data.jupiter.volume.toLocaleString()} ${trend}`;
+      }
+    } catch (err) {
+      console.error('Swap stats update failed:', err);
     }
+  }
 };
 
 function copyToClipboard(text) {
@@ -253,7 +246,6 @@ async function updateAll() {
         console.error(`${fn.name} error:`, err);
         const elementId = fn.name === 'bridgeStats' ? 'bridgeVolume' :
                           fn.name === 'gasPrices' ? ['ethGas', 'bscGas', 'solGas'] :
-                          fn.name === 'twitterMetrics' ? 'twitterMetrics' :
                           fn.name === 'suspiciousActors' ? 'suspiciousActors' :
                           fn.name === 'swapStats' ? ['radiumSwaps', 'jupiterSwaps'] : null;
 
