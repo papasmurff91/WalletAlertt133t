@@ -53,6 +53,15 @@
     </div>
 
     <div class="metrics-panel">
+      <h2>Contract Checker</h2>
+      <div class="contract-checker">
+        <input type="text" id="contractInput" placeholder="Enter contract address" class="contract-input">
+        <button onclick="checkContract()" class="check-btn">Check</button>
+        <div id="contractResult" class="contract-result"></div>
+      </div>
+    </div>
+
+    <div class="metrics-panel">
       <h2>Twitter Metrics</h2>
       <div class="metrics-container">
         <pre id="twitterMetrics">Loading...</pre>

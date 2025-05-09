@@ -70,6 +70,27 @@ async function updateTwitterMetrics() {
 }
 
 // Initialize UI with error boundary
+async function checkContract() {
+  const input = document.getElementById('contractInput');
+  const result = document.getElementById('contractResult');
+  const address = input.value.trim();
+  
+  if (!address) {
+    result.textContent = 'Please enter a contract address';
+    result.style.display = 'block';
+    return;
+  }
+
+  try {
+    const data = await fetchWithRetry(`/api/check-contract/${address}`);
+    result.textContent = data.message || 'Contract verified';
+    result.style.display = 'block';
+  } catch (err) {
+    result.textContent = 'Invalid contract address';
+    result.style.display = 'block';
+  }
+}
+
 function copyAddress() {
   const address = document.querySelector('#solanaAddress code').textContent;
   navigator.clipboard.writeText(address)

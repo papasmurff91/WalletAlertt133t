@@ -181,6 +181,16 @@ app.get('/api/gas-prices', (req, res) => {
   res.json(networks);
 });
 
+app.get('/api/check-contract/:address', (req, res) => {
+  const address = req.params.address;
+  // Simple validation for Solana address format
+  if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+    res.json({ valid: true, message: 'Contract address is valid' });
+  } else {
+    res.status(400).json({ valid: false, message: 'Invalid contract address format' });
+  }
+});
+
 app.get('/api/swap-stats', (req, res) => {
   const swapStats = {
     'radium': { volume: Math.floor(Math.random() * 50000), trend: Math.random() > 0.5 ? 1 : -1 },
