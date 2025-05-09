@@ -314,21 +314,54 @@ pre {
 }
 
 @media (max-width: 768px) {
-  .alerts-container {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 768px) {
   .container {
-    padding: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
 
-  .stats-grid {
+  .alerts-container {
     grid-template-columns: 1fr;
   }
 
   h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.25rem;
+  }
+
+  .contract-checker {
+    flex-direction: column;
+  }
+
+  .contract-input {
+    width: 100%;
+  }
+
+  .price-alert-form {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .theme-toggle button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .metrics-panel {
+    padding: 1rem;
+  }
+
+  pre {
+    font-size: 0.875rem;
   }
 }
