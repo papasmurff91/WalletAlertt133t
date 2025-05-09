@@ -129,34 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  const updateAll = async () => {
-    try {
-      await Promise.allSettled([
-        updateBridgeStats().catch(err => {
-          console.error('Bridge stats error:', err);
-          displayError('bridgeVolume', 'Service unavailable');
-        }),
-        updateGasPrices().catch(err => {
-          console.error('Gas prices error:', err);
-          ['ethGas', 'bscGas', 'solGas'].forEach(id => displayError(id, 'Service unavailable'));
-        }),
-        updateTwitterMetrics().catch(err => {
-          console.error('Twitter metrics error:', err);
-          displayError('twitterMetrics', 'Service unavailable');
-        }),
-        updateSwapStats().catch(err => {
-          console.error('Swap stats error:', err);
-          ['radiumSwaps', 'jupiterSwaps'].forEach(id => displayError(id, 'Service unavailable'));
-          document.querySelectorAll('.alert-content').forEach(el => {
-            el.textContent = 'Service unavailable';
-          });
-        })
-      ]);
-    } catch (err) {
-      console.error('Update failed:', err);
-    }
-  };
-
   const priceAlerts = new Set();
 
   function setPriceAlert() {
@@ -213,6 +185,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Update metrics at regular intervals
+  const updateAll = async () => {
+    try {
+      await Promise.allSettled([
+        updateBridgeStats().catch(err => {
+          console.error('Bridge stats error:', err);
+          displayError('bridgeVolume', 'Service unavailable');
+        }),
+        updateGasPrices().catch(err => {
+          console.error('Gas prices error:', err);
+          ['ethGas', 'bscGas', 'solGas'].forEach(id => displayError(id, 'Service unavailable'));
+        }),
+        updateTwitterMetrics().catch(err => {
+          console.error('Twitter metrics error:', err);
+          displayError('twitterMetrics', 'Service unavailable');
+        }),
+        updateSwapStats().catch(err => {
+          console.error('Swap stats error:', err);
+          ['radiumSwaps', 'jupiterSwaps'].forEach(id => displayError(id, 'Service unavailable'));
+          document.querySelectorAll('.alert-content').forEach(el => {
+            el.textContent = 'Service unavailable';
+          });
+        })
+      ]);
+    } catch (err) {
+      console.error('Update failed:', err);
+    }
+  };
+
   updateAll();
-  setInterval(updateAll, updateInterval);
+  const intervalId = setInterval(updateAll, updateInterval);
+
+  // Cleanup interval on page unload
+  window.addEventListener('unload', () => clearInterval(intervalId));
 });

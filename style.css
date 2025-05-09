@@ -316,52 +316,124 @@ pre {
 @media (max-width: 768px) {
   .container {
     padding: 0.75rem;
+    max-width: 100%;
   }
   
   .stats-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 0.75rem;
   }
 
   .alerts-container {
     grid-template-columns: 1fr;
   }
 
+  .dashboard-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
   h1 {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+    margin-right: 1rem;
   }
 
   .stat-card {
-    padding: 1rem;
+    padding: 0.875rem;
+    margin-bottom: 0.5rem;
   }
 
   .stat-value {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.4;
   }
 
   .contract-checker {
     flex-direction: column;
+    gap: 0.5rem;
   }
 
   .contract-input {
     width: 100%;
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 0.625rem;
   }
 
   .price-alert-form {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.625rem;
+  }
+
+  .price-alert-form input,
+  .price-alert-form select {
+    font-size: 16px; /* Prevent iOS zoom */
+    padding: 0.625rem;
+    width: 100%;
   }
 
   .theme-toggle button {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
+    font-size: 1.25rem;
   }
 
   .metrics-panel {
-    padding: 1rem;
+    padding: 0.875rem;
+    margin-top: 1rem;
+  }
+
+  .metrics-container {
+    padding: 0.75rem;
   }
 
   pre {
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+  }
+
+  .address-box {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .copy-btn {
+    width: 100%;
+    padding: 0.625rem;
+  }
+
+  .alert-btn {
+    width: 100%;
+    padding: 0.75rem;
+  }
+
+  /* Improve touch targets */
+  button {
+    min-height: 44px;
+  }
+
+  /* Add pull-to-refresh smooth scrolling */
+  body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Optimize tap highlight */
+  * {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+  }
+}
+
+/* Additional optimization for very small screens */
+@media (max-width: 360px) {
+  .container {
+    padding: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1rem;
   }
 }
