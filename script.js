@@ -16,7 +16,7 @@ const oauth = new OAuth(
   process.env.TWITTER_CONSUMER_KEY,
   process.env.TWITTER_CONSUMER_SECRET,
   '1.0A',
-  'https://your-repl-url.replit.dev/twitter/callback',
+  process.env.CALLBACK_URL || 'https://5f901225-7357-46a2-8838-d8c120a93a57-00-1kte8uzx4mpim.riker.replit.dev/twitter/callback',
   'HMAC-SHA1'
 );
 
@@ -72,6 +72,16 @@ app.get('/dashboard', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+}).on('error', (err) => {
+  console.error('Server error:', err);
+  process.exit(1);
+});
+
+process.on('SIGTERM', () => {
+  server.close(() => {
+    console.log('Server shutdown complete');
+    process.exit(0);
+  });
 });

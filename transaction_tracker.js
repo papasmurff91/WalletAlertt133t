@@ -18,6 +18,11 @@ const SUSPICIOUS_PATTERNS = {
 };
 
 async function trackTransaction(transaction, fromAddress) {
+  if (!transaction || !fromAddress) {
+    console.error('Invalid transaction or address');
+    return null;
+  }
+  
   const patterns = [];
   const hops = new Set();
   let mixerInteraction = false;

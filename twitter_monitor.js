@@ -2,7 +2,10 @@
 const { TwitterApi } = require('twitter-api-v2');
 const { Connection, PublicKey } = require('@solana/web3.js');
 
-const connection = new Connection('https://api.mainnet-beta.solana.com');
+const connection = new Connection('https://api.mainnet-beta.solana.com', {
+  commitment: 'confirmed',
+  timeout: 30000
+});
 
 // Simple sentiment analysis
 function analyzeSentiment(text) {
