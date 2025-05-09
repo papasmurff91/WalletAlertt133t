@@ -113,7 +113,7 @@ app.post('/tweet', express.json(), (req, res) => {
   const { accessToken, accessTokenSecret } = req.session;
   if (!accessToken) return res.status(401).json({ error: 'Authentication required' });
 
-  const tweet = req.body.text || 'Hello world! This tweet was sent from my Replit app.';
+  const tweet = 'gm scammers';
   oauth.post(
     'https://api.twitter.com/1.1/statuses/update.json',
     accessToken,
