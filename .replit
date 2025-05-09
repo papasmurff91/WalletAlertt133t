@@ -4,6 +4,7 @@ modules = ["web", "python-3.12", "nodejs-20"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["yakut"]
 
 [deployment]
 publicDir = "/"
