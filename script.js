@@ -17,6 +17,21 @@ app.use((req, res, next) => {
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100 // limit each IP to 100 requests per windowMs
+
+// Test endpoints
+app.get('/test/session', (req, res) => {
+  req.session.testData = Date.now();
+  res.json({ sessionWorking: true, timestamp: req.session.testData });
+});
+
+app.get('/test/rate-limit', async (req, res) => {
+  res.json({ message: 'Rate limit test endpoint' });
+});
+
+app.get('/test/error', () => {
+  throw new Error('Test error handling');
+});
+
 });
 app.use(limiter);
 
@@ -95,11 +110,37 @@ app.get('/dashboard', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+// Add health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', uptime: process.uptime() });
+});
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Application error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Health check available at /health');
+  
+  // Test OAuth configuration
+  if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
+    console.warn('Warning: Twitter OAuth credentials not configured');
+  }
 }).on('error', (err) => {
   console.error('Server error:', err);
   process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('Received SIGTERM signal, initiating graceful shutdown');
+  server.close(() => {
+    console.log('Server shutdown complete');
+    process.exit(0);
+  });
 });
 
 process.on('SIGTERM', () => {
