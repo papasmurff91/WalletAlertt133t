@@ -1,16 +1,32 @@
 
 // Client-side code with retry logic
 async function fetchWithRetry(url, retries = 3, delay = 1000) {
+  let lastError;
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-      return await response.json();
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeout);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (!data) throw new Error('Empty response');
+      return data;
     } catch (err) {
-      if (i === retries - 1) throw err;
-      await new Promise(resolve => setTimeout(resolve, delay));
+      lastError = err;
+      if (err.name === 'AbortError') {
+        console.error('Request timeout');
+      }
+      if (i === retries - 1) break;
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1))); // Exponential backoff
     }
   }
+  throw lastError;
 }
 
 async function updateBridgeStats() {
