@@ -163,28 +163,33 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.get('/api/bridge-stats', (req, res) => {
+app.get('/api/bridge-stats', async (req, res) => {
   try {
     const volume = Math.floor(Math.random() * 1000000);
     const tx = Math.floor(Math.random() * 100);
-    res.json({ volume, tx });
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+    res.set('Cache-Control', 'no-store');
+    res.json({ volume, tx, timestamp: Date.now() });
   } catch (error) {
     console.error('Bridge stats error:', error);
-    res.status(500).json({ error: 'Failed to fetch bridge stats' });
+    res.status(500).json({ error: 'Failed to fetch bridge stats', details: error.message });
   }
 });
 
-app.get('/api/gas-prices', (req, res) => {
+app.get('/api/gas-prices', async (req, res) => {
   try {
     const networks = {
       'ethGas': { price: '50-60', trend: Math.random() > 0.5 ? 1 : -1 },
       'bscGas': { price: '5-7', trend: Math.random() > 0.5 ? 1 : -1 },
-      'solGas': { price: '0.001', trend: Math.random() > 0.5 ? 1 : -1 }
+      'solGas': { price: '0.001', trend: Math.random() > 0.5 ? 1 : -1 },
+      'timestamp': Date.now()
     };
+    await new Promise(resolve => setTimeout(resolve, 100)); // Simulate network delay
+    res.set('Cache-Control', 'no-store');
     res.json(networks);
   } catch (error) {
     console.error('Gas prices error:', error);
-    res.status(500).json({ error: 'Failed to fetch gas prices' });
+    res.status(500).json({ error: 'Failed to fetch gas prices', details: error.message });
   }
 });
 

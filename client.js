@@ -5,9 +5,15 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
   for (let i = 0; i < retries; i++) {
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
+      const timeout = setTimeout(() => controller.abort(), 10000); // Increased timeout
       
-      const response = await fetch(url, { signal: controller.signal });
+      const response = await fetch(url, { 
+        signal: controller.signal,
+        headers: {
+          'Accept': 'application/json',
+          'Cache-Control': 'no-cache'
+        }
+      });
       clearTimeout(timeout);
       
       if (!response.ok) {
@@ -19,14 +25,12 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
       return data;
     } catch (err) {
       lastError = err;
-      if (err.name === 'AbortError') {
-        console.error('Request timeout');
-      }
+      console.warn(`Retry ${i + 1}/${retries} failed for ${url}:`, err.message);
       if (i === retries - 1) break;
-      await new Promise(resolve => setTimeout(resolve, delay * (i + 1))); // Exponential backoff
+      await new Promise(resolve => setTimeout(resolve, delay * (i + 1))); 
     }
   }
-  throw lastError;
+  return { error: 'Service temporarily unavailable' }; // Fallback response
 }
 
 async function updateBridgeStats() {
