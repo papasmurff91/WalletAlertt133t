@@ -10,7 +10,7 @@ publicDir = "/"
 deploymentTarget = "static"
 
 [workflows]
-runButton = "Run Server"
+runButton = "Run Tests"
 
 [[workflows.workflow]]
 name = "Run Web App"
