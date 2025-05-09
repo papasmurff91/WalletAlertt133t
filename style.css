@@ -271,6 +271,48 @@ pre {
   color: var(--text-primary);
 }
 
+.price-alert-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.price-alert-form input,
+.price-alert-form select {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.alert-btn {
+  background: linear-gradient(135deg, #ff9966, #ff5e62);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.alert-btn:hover {
+  transform: scale(1.05);
+}
+
+.stat-card {
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(110, 142, 251, 0.1);
+  }
+  to {
+    box-shadow: 0 0 15px rgba(167, 119, 227, 0.3);
+  }
+}
+
 @media (max-width: 768px) {
   .alerts-container {
     grid-template-columns: 1fr;

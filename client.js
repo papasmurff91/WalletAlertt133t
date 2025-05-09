@@ -1,4 +1,3 @@
-
 // Client-side code with retry logic
 async function fetchWithRetry(url, retries = 3, delay = 1000) {
   for (let i = 0; i < retries; i++) {
@@ -9,11 +8,11 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
           'Cache-Control': 'no-cache'
         }
       });
-      
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      
+
       const data = await response.json();
       return data;
     } catch (err) {
@@ -42,7 +41,7 @@ async function updateGasPrices() {
   try {
     const networks = await fetchWithRetry('/api/gas-prices');
     if (!networks) return;
-    
+
     Object.entries(networks).forEach(([network, gas]) => {
       const element = document.getElementById(network);
       if (element && gas) {
@@ -74,7 +73,7 @@ async function checkContract() {
   const input = document.getElementById('contractInput');
   const result = document.getElementById('contractResult');
   const address = input.value.trim();
-  
+
   if (!address) {
     result.textContent = 'Please enter a contract address';
     result.style.display = 'block';
@@ -108,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Theme toggle functionality
   const themeToggle = document.getElementById('themeToggle');
   let isDark = true;
-  
+
   themeToggle.addEventListener('click', () => {
     isDark = !isDark;
     document.body.classList.toggle('light-theme', !isDark);
@@ -158,19 +157,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  const priceAlerts = new Set();
+
+  function setPriceAlert() {
+    const price = document.getElementById('alertPrice').value;
+    const direction = document.getElementById('alertDirection').value;
+    const alertsDiv = document.getElementById('activeAlerts');
+
+    if (!price) return;
+
+    const alert = {
+      price: parseFloat(price),
+      direction,
+      id: Date.now()
+    };
+
+    priceAlerts.add(alert);
+    alertsDiv.innerHTML = Array.from(priceAlerts)
+      .map(a => `${a.direction === 'above' ? '↗️' : '↘️'} Alert when price ${a.direction} $${a.price}`)
+      .join('<br>');
+  }
+
   async function updateSwapStats() {
     try {
       const data = await fetchWithRetry('/api/swap-stats');
       if (!data) return;
-      
+
+      // Check price alerts
+      const currentPrice = (data.radium?.volume || 0) / 100; // Example price calculation
+      priceAlerts.forEach(alert => {
+        if ((alert.direction === 'above' && currentPrice > alert.price) ||
+            (alert.direction === 'below' && currentPrice < alert.price)) {
+          new Notification(`Price Alert: $${currentPrice}`, {
+            body: `Price is ${alert.direction} your target of $${alert.price}`,
+            icon: '/generated-icon.png'
+          });
+        }
+      });
+
       const radiumElement = document.getElementById('radiumSwaps');
       const jupiterElement = document.getElementById('jupiterSwaps');
-      
+
       if (radiumElement && data.radium) {
         const trend = data.radium.trend > 0 ? '↗️' : '↘️';
         radiumElement.textContent = `$${data.radium.volume.toLocaleString()} ${trend}`;
       }
-      
+
       if (jupiterElement && data.jupiter) {
         const trend = data.jupiter.trend > 0 ? '↗️' : '↘️';
         jupiterElement.textContent = `$${data.jupiter.volume.toLocaleString()} ${trend}`;
