@@ -1,3 +1,4 @@
+
 const express = require('express');
 const path = require('path');
 const { OAuth } = require('oauth');
@@ -14,37 +15,34 @@ const oauth = new OAuth(
   'HMAC-SHA1'
 );
 
-// Twitter OAuth routes
-app.get('/twitter/auth', (req, res) => {
-  oauth.getOAuthRequestToken((error, oauth_token, oauth_token_secret, results) => {
-    if (error) {
-      console.error('Request token error:', error);
-      return res.status(500).send('OAuth request failed');
-    }
-    res.redirect(`https://api.twitter.com/oauth/authenticate?oauth_token=${oauth_token}`);
-  });
-});
-
-app.get('/twitter/callback', (req, res) => {
-  const { oauth_token, oauth_verifier } = req.query;
-  
-  oauth.getOAuthAccessToken(
-    oauth_token,
-    null,
-    oauth_verifier,
-    (error, accessToken, accessTokenSecret, results) => {
-      if (error) {
-        console.error('Access token error:', error);
-        return res.status(500).send('OAuth failed');
-      }
-      res.send('Twitter authentication successful!');
-    }
-  );
-});
-
 // Serve static files
 app.use(express.static(__dirname));
 app.use(express.json());
+
+// Initialize UI elements after DOM is loaded
+function initializeUI() {
+  // Bridge volume update
+  fetch('/api/bridge-stats')
+    .then(res => res.json())
+    .then(data => {
+      const volumeElement = document.getElementById('bridgeVolume');
+      if (volumeElement) {
+        volumeElement.textContent = `$${data.volume.toLocaleString()}`;
+      }
+    });
+
+  // Gas prices update
+  fetch('/api/gas-prices')
+    .then(res => res.json())
+    .then(networks => {
+      Object.entries(networks).forEach(([network, gas]) => {
+        const element = document.getElementById(network);
+        if (element) {
+          element.textContent = gas;
+        }
+      });
+    });
+}
 
 // Routes
 app.get('/api/bridge-stats', (req, res) => {
@@ -62,7 +60,7 @@ app.get('/api/gas-prices', (req, res) => {
   res.json(networks);
 });
 
-// Serve index.html for all other routes
+// Serve index.html
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
@@ -71,3 +69,6 @@ const PORT = 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Add script to index.html to initialize UI
+document.addEventListener('DOMContentLoaded', initializeUI);
