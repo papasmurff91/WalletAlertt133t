@@ -212,15 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const updateAll = () => {
-    Promise.allSettled([
-      updateBridgeStats(),
-      updateGasPrices(),
-      updateTwitterMetrics(),
-      updateSwapStats()
-    ]).catch(console.error);
-  };
-
+  // Update metrics at regular intervals
   updateAll();
   setInterval(updateAll, updateInterval);
 });

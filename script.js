@@ -122,9 +122,21 @@ app.get('/api/suspicious-addresses', async (req, res) => {
 
 app.get('/api/twitter-metrics', async (req, res) => {
   try {
-    const username = process.env.TWITTER_USERNAME;
-    const password = process.env.TWITTER_PASSWORD;
-    const accountName = process.env.TWITTER_ACCOUNT_NAME;
+    const { findSuspiciousAddresses, analyzeSentiment } = require('./twitter_monitor');
+    const suspiciousAddresses = await findSuspiciousAddresses();
+    
+    const metrics = {
+      suspiciousAddresses: suspiciousAddresses.length,
+      sentimentBreakdown: suspiciousAddresses.reduce((acc, curr) => {
+        acc[curr.sentiment] = (acc[curr.sentiment] || 0) + 1;
+        return acc;
+      }, {}),
+      topEngagement: suspiciousAddresses
+        .sort((a, b) => (b.engagement.likes + b.engagement.retweets) - 
+                       (a.engagement.likes + a.engagement.retweets))
+        .slice(0, 5),
+      trendingTags: [...new Set(suspiciousAddresses.flatMap(a => a.relatedTags))]
+    };
     
     if (!username || !password || !accountName) {
       return res.status(400).json({ error: 'Missing Twitter credentials' });
