@@ -7,34 +7,46 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta http-equiv="X-Frame-Options" content="DENY">
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;">
-  <title>Secure Bridge Dashboard</title>
+  <title>Bridge Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link href="style.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
   <div class="container">
-    <h1>Bridge Monitor</h1>
-    <div class="network-status">
-      <div class="network-item">
-        <span>Bridge Volume:</span>
-        <span id="bridgeVolume">Loading...</span>
+    <header class="dashboard-header">
+      <h1>Bridge Monitor</h1>
+      <div class="theme-toggle">
+        <button id="themeToggle" aria-label="Toggle theme">🌙</button>
       </div>
-      <div class="network-item">
-        <span>ETH Gas:</span>
-        <span id="ethGas">Loading...</span>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Bridge Volume</h3>
+        <div class="stat-value" id="bridgeVolume">Loading...</div>
       </div>
-      <div class="network-item">
-        <span>BSC Gas:</span>
-        <span id="bscGas">Loading...</span>
+      
+      <div class="stat-card">
+        <h3>ETH Gas</h3>
+        <div class="stat-value" id="ethGas">Loading...</div>
       </div>
-      <div class="network-item">
-        <span>SOL Gas:</span>
-        <span id="solGas">Loading...</span>
+      
+      <div class="stat-card">
+        <h3>BSC Gas</h3>
+        <div class="stat-value" id="bscGas">Loading...</div>
+      </div>
+      
+      <div class="stat-card">
+        <h3>SOL Gas</h3>
+        <div class="stat-value" id="solGas">Loading...</div>
       </div>
     </div>
+
     <div class="metrics-panel">
       <h2>Twitter Metrics</h2>
-      <pre id="twitterMetrics">Loading...</pre>
+      <div class="metrics-container">
+        <pre id="twitterMetrics">Loading...</pre>
+      </div>
     </div>
   </div>
   <script src="client.js"></script>
