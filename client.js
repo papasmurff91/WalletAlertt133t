@@ -164,36 +164,40 @@ document.addEventListener('DOMContentLoaded', () => {
   const tweetInput = document.getElementById('tweetText');
   const statusDiv = document.getElementById('status');
 
-  loginBtn.addEventListener('click', () => {
-    window.location.href = '/twitter/login';
-  });
+  if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      window.location.href = '/twitter/login';
+    });
+  }
 
-  tweetBtn.addEventListener('click', async () => {
-    const tweetText = tweetInput.value.trim();
-    if (!tweetText) {
-      statusDiv.textContent = 'Please enter a tweet';
-      return;
-    }
-
-    try {
-      const response = await fetch('/tweet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ text: tweetText })
-      });
-      
-      const result = await response.text();
-      statusDiv.textContent = result;
-      if (response.ok) {
-        tweetInput.value = '';
+  if (tweetBtn) {
+    tweetBtn.addEventListener('click', async () => {
+      const tweetText = tweetInput.value.trim();
+      if (!tweetText) {
+        statusDiv.textContent = 'Please enter a tweet';
+        return;
       }
-    } catch (error) {
-      statusDiv.textContent = 'Failed to send tweet';
-      console.error('Tweet error:', error);
-    }
-  });
+
+      try {
+        const response = await fetch('/tweet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status: tweetText })
+        });
+        
+        const result = await response.json();
+        statusDiv.textContent = result.message || 'Tweet sent!';
+        if (response.ok) {
+          tweetInput.value = '';
+        }
+      } catch (error) {
+        statusDiv.textContent = 'Failed to send tweet';
+        console.error('Tweet error:', error);
+      }
+    });
+  }
 
   const updateInterval = 30000;
 
