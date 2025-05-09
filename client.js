@@ -29,12 +29,27 @@ async function updateGasPrices() {
 }
 
 // Initialize UI when DOM is loaded
+async function updateTwitterMetrics() {
+  try {
+    const response = await fetch('/api/twitter-metrics');
+    const data = await response.json();
+    const metricsElement = document.getElementById('twitterMetrics');
+    if (metricsElement && data) {
+      metricsElement.textContent = JSON.stringify(data, null, 2);
+    }
+  } catch (err) {
+    console.error('Twitter metrics update failed:', err);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   updateBridgeStats();
   updateGasPrices();
+  updateTwitterMetrics();
   // Update every 30 seconds
   setInterval(() => {
     updateBridgeStats();
     updateGasPrices();
+    updateTwitterMetrics();
   }, 30000);
 });

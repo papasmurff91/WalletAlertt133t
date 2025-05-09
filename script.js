@@ -89,9 +89,33 @@ async function getTwitterMetrics() {
 
 app.get('/api/twitter-metrics', async (req, res) => {
   try {
-    const metrics = await getTwitterMetrics();
+    const username = process.env.TWITTER_USERNAME;
+    const password = process.env.TWITTER_PASSWORD;
+    const accountName = process.env.TWITTER_ACCOUNT_NAME;
+    
+    if (!username || !password || !accountName) {
+      return res.status(400).json({ error: 'Missing Twitter credentials' });
+    }
+
+    const auth = Buffer.from(`${username}:${password}`).toString('base64');
+    const response = await fetch(
+      `https://gnip-api.x.com/metrics/usage/accounts/${accountName}.json?bucket=month`,
+      {
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Accept': 'application/json'
+        }
+      }
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const metrics = await response.json();
     res.json(metrics);
   } catch (error) {
+    console.error('Twitter metrics error:', error);
     res.status(500).json({ error: 'Failed to fetch Twitter metrics' });
   }
 });
