@@ -10,7 +10,7 @@ publicDir = "/"
 deploymentTarget = "static"
 
 [workflows]
-runButton = "Run"
+runButton = "Run Server"
 
 [[workflows.workflow]]
 name = "Run Web App"
@@ -38,3 +38,21 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=production PORT=5000 node script.js"
+
+[[workflows.workflow]]
+name = "Run Tests"
+author = 42372600
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test.js"
+
+[[workflows.workflow]]
+name = "Test Suite"
+author = 42372600
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node test.js"
