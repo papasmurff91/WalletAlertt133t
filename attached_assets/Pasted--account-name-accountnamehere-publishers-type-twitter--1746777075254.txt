@@ -1,0 +1,277 @@
+{
+  "account": {
+    "name": "accountnamehere"
+  },
+  "publishers": [
+    {
+      "type": "twitter",
+      "used": [
+        {
+          "timePeriod": "201805010000",
+          "activities": 1235,
+          "searchRequests30Day": 3,
+          "searchRequestsFullArchive": 19,
+          "historicalPowertrackDays": 0,
+          "historicalPowertrackJobs": 0
+        },
+        {
+          "timePeriod": "201806010000",
+          "activities": 23467,
+          "searchRequests30Day": 0,
+          "searchRequestsFullArchive": 66,
+          "historicalPowertrackDays": 0,
+          "historicalPowertrackJobs": 0
+        },
+        {
+          "timePeriod": "201807010000",
+          "activities": 431,
+          "searchRequests30Day": 11,
+          "searchRequestsFullArchive": 4,
+          "historicalPowertrackDays": 0,
+          "historicalPowertrackJobs": 0
+        }
+      ],
+      "projected": {
+        "timePeriod": "201807010000",
+        "activities": 803,
+        "searchRequests30Day": 20,
+        "searchRequestsFullArchive": 7,
+        "historicalPowertrackDays": 0,
+        "historicalPowertrackJobs": 0
+      },
+      "products": [
+        {
+          "type": "Historical PowerTrack Subscription",
+          "used": [
+            {
+              "timePeriod": "201805010000",
+              "activities": 0,
+              "days": 0,
+              "jobs": 0
+            },
+            {
+              "timePeriod": "201806010000",
+              "activities": 0,
+              "days": 0,
+              "jobs": 0
+            },
+            {
+              "timePeriod": "201807010000",
+              "activities": 0,
+              "days": 0,
+              "jobs": 0
+            }
+          ],
+          "projected": {
+            "timePeriod": "201807010000",
+            "activities": 0,
+            "days": 0,
+            "jobs": 0
+          }
+        },
+        {
+          "type": "PowerTrack",
+          "used": [
+            {
+              "timePeriod": "201805010000",
+              "activities": 267
+            },
+            {
+              "timePeriod": "201806010000",
+              "activities": 3
+            },
+            {
+              "timePeriod": "201807010000",
+              "activities": 32
+            }
+          ],
+          "projected": {
+            "timePeriod": "201807010000",
+            "activities": 59
+          },
+          "endpoints": [
+            {
+              "type": "PowerTrack 2.0",
+              "label": "actformat",
+              "used": [
+                {
+                  "timePeriod": "201805010000",
+                  "activities": 0
+                },
+                {
+                  "timePeriod": "201806010000",
+                  "activities": 0
+                },
+                {
+                  "timePeriod": "201807010000",
+                  "activities": 0
+                }
+              ],
+              "projected": {
+                "timePeriod": "201807010000",
+                "activities": 0
+              }
+            },
+              {
+              "type": "PowerTrack Replay 2.0",
+              "label": "ogformat",
+              "used": [
+                {
+                  "timePeriod": "201805010000",
+                  "activities": 0
+                },
+                {
+                  "timePeriod": "201806010000",
+                  "activities": 0
+                },
+                {
+                  "timePeriod": "201807010000",
+                  "activities": 0
+                }
+              ],
+              "projected": {
+                "timePeriod": "201807010000",
+                "activities": 0
+              }
+            }
+          ]
+        },
+        {
+          "type": "Search API (30-Day) 2.0",
+          "used": [
+            {
+              "timePeriod": "201805010000",
+              "activities": 10,
+              "searchRequests30Day": 3
+            },
+            {
+              "timePeriod": "201806010000",
+              "activities": 0,
+              "searchRequests30Day": 0
+            },
+            {
+              "timePeriod": "201807010000",
+              "activities": 23,
+              "searchRequests30Day": 11
+            }
+          ],
+          "projected": {
+            "timePeriod": "201807010000",
+            "activities": 42,
+            "searchRequests30Day": 20
+          },
+          "endpoints": [
+            {
+              "type": "Search API (30-Day) 2.0",
+              "label": "ogformat",
+              "used": [
+                {
+                  "timePeriod": "201805010000",
+                  "activities": 10,
+                  "searchRequests30Day": 3
+                },
+                {
+                  "timePeriod": "201806010000",
+                  "activities": 0,
+                  "searchRequests30Day": 0
+                },
+                {
+                  "timePeriod": "201807010000",
+                  "activities": 21,
+                  "searchRequests30Day": 10
+                }
+              ],
+              "projected": {
+                "timePeriod": "201807010000",
+                "activities": 39,
+                "searchRequests30Day": 18
+              }
+            }
+          ]
+        },
+        {
+          "type": "Search API (Full-Archive)",
+          "used": [
+            {
+              "timePeriod": "201805010000",
+              "activities": 961,
+              "searchRequestsFullArchive": 19
+            },
+            {
+              "timePeriod": "201806010000",
+              "activities": 23466,
+              "searchRequestsFullArchive": 66
+            },
+            {
+              "timePeriod": "201807010000",
+              "activities": 379,
+              "searchRequestsFullArchive": 4
+            }
+          ],
+          "projected": {
+            "timePeriod": "201807010000",
+            "activities": 706,
+            "searchRequestsFullArchive": 7
+          },
+          "endpoints": [
+            {
+              "type": "Search API (Full-Archive)",
+              "label": "actformat",
+              "used": [
+                {
+                  "timePeriod": "201805010000",
+                  "activities": 1,
+                  "searchRequestsFullArchive": 3
+                },
+                {
+                  "timePeriod": "201806010000",
+                  "activities": 0,
+                  "searchRequestsFullArchive": 0
+                },
+                {
+                  "timePeriod": "201807010000",
+                  "activities": 2,
+                  "searchRequestsFullArchive": 1
+                }
+              ],
+              "projected": {
+                "timePeriod": "201807010000",
+                "activities": 3,
+                "searchRequestsFullArchive": 1
+              }
+            },
+            {
+              "type": "Search API (Full-Archive)",
+              "label": "ogformat",
+              "used": [
+                {
+                  "timePeriod": "201805010000",
+                  "activities": 961,
+                  "searchRequestsFullArchive": 16
+                },
+                {
+                  "timePeriod": "201806010000",
+                  "activities": 23466,
+                  "searchRequestsFullArchive": 66
+                },
+                {
+                  "timePeriod": "201807010000",
+                  "activities": 379,
+                  "searchRequestsFullArchive": 3
+                }
+              ],
+              "projected": {
+                "timePeriod": "201807010000",
+                "activities": 706,
+                "searchRequestsFullArchive": 5
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "bucket": "month",
+  "fromDate": "201805010000",
+  "toDate": "201808010000"
+}
