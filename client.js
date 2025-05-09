@@ -83,12 +83,42 @@ function copyAddress() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const updateInterval = 30000; // 30 seconds
+
+  // Theme toggle functionality
+  const themeToggle = document.getElementById('themeToggle');
+  let isDark = true;
   
+  themeToggle.addEventListener('click', () => {
+    isDark = !isDark;
+    document.body.classList.toggle('light-theme', !isDark);
+    themeToggle.textContent = isDark ? '🌙' : '☀️';
+  });
+
+  const displayError = (elementId, message = 'Unavailable') => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.textContent = message;
+      element.classList.add('error');
+    }
+  };
+
+  const clearError = (elementId) => {
+    const element = document.getElementById(elementId);
+    if (element) {
+      element.classList.remove('error');
+    }
+  };
+
   const updateAll = () => {
     Promise.allSettled([
-      updateBridgeStats(),
-      updateGasPrices(),
-      updateTwitterMetrics()
+      updateBridgeStats().catch(err => displayError('bridgeVolume')),
+      updateGasPrices().catch(err => {
+        ['ethGas', 'bscGas', 'solGas'].forEach(id => displayError(id));
+      }),
+      updateTwitterMetrics().catch(err => displayError('twitterMetrics')),
+      updateSwapStats().catch(err => {
+        ['radiumSwaps', 'jupiterSwaps'].forEach(id => displayError(id));
+      })
     ]).catch(console.error);
   };
 

@@ -5,6 +5,41 @@
   --text-secondary: #A5A5A5;
   --card-border: rgba(255, 255, 255, 0.1);
   --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --error-color: #ff4d4d;
+}
+
+.light-theme {
+  background: linear-gradient(135deg, #f5f7fa, #e5e9f2);
+  color: #2d3748;
+}
+
+.light-theme .stat-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.error {
+  color: var(--error-color);
+  font-style: italic;
+}
+
+.collapsible {
+  cursor: pointer;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.2rem;
+}
+
+.content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+.content.active {
+  max-height: 500px;
 }
 
 body {
