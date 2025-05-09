@@ -18,8 +18,15 @@ const SUSPICIOUS_PATTERNS = {
 };
 
 async function trackTransaction(transaction, fromAddress) {
-  if (!transaction || !fromAddress) {
-    console.error('Invalid transaction or address');
+  if (!transaction || !fromAddress || typeof fromAddress !== 'string' || fromAddress.length < 32) {
+    console.error('Invalid transaction or address format');
+    return null;
+  }
+  
+  try {
+    new PublicKey(fromAddress);
+  } catch (err) {
+    console.error('Invalid Solana address');
     return null;
   }
   

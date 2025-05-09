@@ -106,7 +106,13 @@ async function updateTwitterMetrics() {
 async function checkContract() {
   const input = document.getElementById('contractInput');
   const result = document.getElementById('contractResult');
-  const address = input.value.trim();
+  const address = input.value.trim().replace(/[<>&'"]/g, '');
+  
+  if (!/^[A-Za-z0-9]{32,44}$/.test(address)) {
+    result.textContent = 'Invalid address format';
+    result.style.display = 'block';
+    return;
+  }
 
   if (!address) {
     result.textContent = 'Please enter a contract address';
