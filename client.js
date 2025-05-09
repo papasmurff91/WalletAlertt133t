@@ -33,7 +33,10 @@ async function updateGasPrices() {
     Object.entries(networks).forEach(([network, gas]) => {
       const element = document.getElementById(network);
       if (element && gas) {
-        element.textContent = gas;
+        const trend = gas.trend > 0 ? '↗️' : gas.trend < 0 ? '↘️' : '↔️';
+        element.innerHTML = `${gas.price} ${trend}`;
+        element.classList.toggle('price-up', gas.trend > 0);
+        element.classList.toggle('price-down', gas.trend < 0);
       }
     });
   } catch (err) {

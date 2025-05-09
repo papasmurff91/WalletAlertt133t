@@ -161,9 +161,9 @@ app.get('/api/bridge-stats', (req, res) => {
 
 app.get('/api/gas-prices', (req, res) => {
   const networks = {
-    'ethGas': '50-60',
-    'bscGas': '5-7',
-    'solGas': '0.001'
+    'ethGas': { price: '50-60', trend: Math.random() > 0.5 ? 1 : -1 },
+    'bscGas': { price: '5-7', trend: Math.random() > 0.5 ? 1 : -1 },
+    'solGas': { price: '0.001', trend: Math.random() > 0.5 ? 1 : -1 }
   };
   res.json(networks);
 });

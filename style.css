@@ -85,6 +85,19 @@ h1 {
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.stat-value.price-up {
+  color: #00ff9d;
+}
+
+.stat-value.price-down {
+  color: #ff4d4d;
+}
+
+.stat-value:hover {
+  transform: scale(1.05);
 }
 
 .metrics-panel {
