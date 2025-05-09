@@ -1,11 +1,23 @@
 
-// Client-side code
+// Client-side code with retry logic
+async function fetchWithRetry(url, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+}
+
 async function updateBridgeStats() {
   try {
-    const response = await fetch('/api/bridge-stats');
-    const data = await response.json();
+    const data = await fetchWithRetry('/api/bridge-stats');
     const volumeElement = document.getElementById('bridgeVolume');
-    if (volumeElement) {
+    if (volumeElement && data?.volume) {
       volumeElement.textContent = `$${data.volume.toLocaleString()}`;
     }
   } catch (err) {
@@ -15,11 +27,12 @@ async function updateBridgeStats() {
 
 async function updateGasPrices() {
   try {
-    const response = await fetch('/api/gas-prices');
-    const networks = await response.json();
+    const networks = await fetchWithRetry('/api/gas-prices');
+    if (!networks) return;
+    
     Object.entries(networks).forEach(([network, gas]) => {
       const element = document.getElementById(network);
-      if (element) {
+      if (element && gas) {
         element.textContent = gas;
       }
     });
@@ -28,11 +41,9 @@ async function updateGasPrices() {
   }
 }
 
-// Initialize UI when DOM is loaded
 async function updateTwitterMetrics() {
   try {
-    const response = await fetch('/api/twitter-metrics');
-    const data = await response.json();
+    const data = await fetchWithRetry('/api/twitter-metrics');
     const metricsElement = document.getElementById('twitterMetrics');
     if (metricsElement && data) {
       metricsElement.textContent = JSON.stringify(data, null, 2);
@@ -42,14 +53,18 @@ async function updateTwitterMetrics() {
   }
 }
 
+// Initialize UI with error boundary
 document.addEventListener('DOMContentLoaded', () => {
-  updateBridgeStats();
-  updateGasPrices();
-  updateTwitterMetrics();
-  // Update every 30 seconds
-  setInterval(() => {
-    updateBridgeStats();
-    updateGasPrices();
-    updateTwitterMetrics();
-  }, 30000);
+  const updateInterval = 30000; // 30 seconds
+  
+  const updateAll = () => {
+    Promise.allSettled([
+      updateBridgeStats(),
+      updateGasPrices(),
+      updateTwitterMetrics()
+    ]).catch(console.error);
+  };
+
+  updateAll();
+  setInterval(updateAll, updateInterval);
 });

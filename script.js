@@ -6,6 +6,18 @@ const path = require('path');
 
 const app = express();
 
+// Security headers
+app.use((req, res, next) => {
+  res.set({
+    'X-Content-Type-Options': 'nosniff',
+    'X-Frame-Options': 'DENY',
+    'X-XSS-Protection': '1; mode=block',
+    'Content-Security-Policy': "default-src 'self'",
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains'
+  });
+  next();
+});
+
 // Session middleware
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your_session_secret',
@@ -98,26 +110,47 @@ app.get('/api/twitter-metrics', async (req, res) => {
     }
 
     const auth = Buffer.from(`${username}:${password}`).toString('base64');
-    const response = await fetch(
-      `https://gnip-api.x.com/metrics/usage/accounts/${accountName}.json?bucket=month`,
-      {
-        headers: {
-          'Authorization': `Basic ${auth}`,
-          'Accept': 'application/json'
+    
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    
+    try {
+      const response = await fetch(
+        `https://gnip-api.x.com/metrics/usage/accounts/${accountName}.json?bucket=month`,
+        {
+          headers: {
+            'Authorization': `Basic ${auth}`,
+            'Accept': 'application/json'
+          },
+          signal: controller.signal
         }
+      );
+      
+      clearTimeout(timeout);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    );
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const metrics = await response.json();
+      res.json(metrics);
+    } catch (fetchError) {
+      if (fetchError.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+      throw fetchError;
     }
-    
-    const metrics = await response.json();
-    res.json(metrics);
   } catch (error) {
     console.error('Twitter metrics error:', error);
-    res.status(500).json({ error: 'Failed to fetch Twitter metrics' });
+    res.status(error.message === 'Request timeout' ? 504 : 500)
+       .json({ error: error.message || 'Failed to fetch Twitter metrics' });
   }
+});
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 app.get('/api/bridge-stats', (req, res) => {
