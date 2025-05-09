@@ -12,14 +12,19 @@ function debounce(func, wait) {
 }
 
 async function fetchWithRetry(url, retries = 3, delay = 1000) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+
   for (let i = 0; i < retries; i++) {
     try {
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
           'Cache-Control': 'no-cache'
-        }
+        },
+        signal: controller.signal
       });
+      clearTimeout(timeout);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);

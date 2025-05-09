@@ -28,4 +28,4 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node script.js"
+args = "NODE_ENV=production node script.js"

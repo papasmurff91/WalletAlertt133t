@@ -116,7 +116,10 @@ app.get('/api/suspicious-addresses', async (req, res) => {
     const addresses = await findSuspiciousAddresses();
     res.json(addresses);
   } catch (err) {
+    console.error('Suspicious addresses error:', err);
     res.status(500).json({ error: 'Failed to fetch suspicious addresses' });
+  }
+});
 
 app.get('/api/track-transaction/:address', async (req, res) => {
   try {
@@ -255,7 +258,18 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-const PORT = 5000;
-app.listen(PORT, '0.0.0.0', () => {
+const PORT = process.env.PORT || 5000;
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+}).on('error', (err) => {
+  console.error('Server startup error:', err);
+  process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+  server.close(() => {
+    console.log('Server shutdown complete');
+    process.exit(0);
+  });
 });
