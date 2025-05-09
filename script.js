@@ -113,7 +113,7 @@ app.get('/tweet', (req, res) => {
   const { accessToken, accessTokenSecret } = req.session;
   if (!accessToken) return res.send('You must log in first.');
 
-  const tweet = 'This is another tweet from Replit!';
+  const tweet = 'gm frenz';
   oauth.post(
     'https://api.twitter.com/1.1/statuses/update.json',
     accessToken,
