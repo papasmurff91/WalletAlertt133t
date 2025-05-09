@@ -119,16 +119,12 @@ app.post('/tweet', express.json(), (req, res) => {
     accessToken,
     accessTokenSecret,
     { status: tweet },
-    (err, data) => {
+    (err, data, response) => {
       if (err) {
-        console.error('Tweet error:', err);
-        return res.status(500).json({ error: 'Failed to post tweet' });
+        console.error('Full Twitter error:', err);
+        return res.send('Tweet failed. Check your console.');
       }
-      res.json({ 
-        success: true, 
-        message: 'Tweet sent successfully!',
-        tweet_id: data?.id_str 
-      });
+      res.send('Tweet sent: ' + tweet);
     }
   );
 });
