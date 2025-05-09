@@ -163,6 +163,39 @@ const twitterLimiter = rateLimit({
 app.use('/twitter', twitterLimiter);
 
 const PORT = process.env.PORT || 5000;
+// Add API endpoints
+app.get('/api/bridge-stats', (req, res) => {
+  res.json({ volume: 1234567 });
+});
+
+app.get('/api/gas-prices', (req, res) => {
+  res.json({
+    eth: { price: '45 gwei', trend: 1 },
+    bsc: { price: '5 gwei', trend: -1 },
+    sol: { price: '0.000005 SOL', trend: 0 }
+  });
+});
+
+app.get('/api/twitter-metrics', (req, res) => {
+  res.json({
+    tweets: 150,
+    mentions: 45,
+    engagement: '23%'
+  });
+});
+
+app.get('/api/suspicious-actors', async (req, res) => {
+  const actors = await getSuspiciousActors();
+  res.json(actors);
+});
+
+app.get('/api/swap-stats', (req, res) => {
+  res.json({
+    radium: { volume: 543210, trend: 1 },
+    jupiter: { volume: 987654, trend: -1 }
+  });
+});
+
 // Add health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'healthy', uptime: process.uptime() });
