@@ -1,0 +1,83 @@
+const express = require('express');
+const session = require('express-session');
+const OAuth = require('oauth').OAuth;
+require('dotenv').config();
+
+const app = express();
+const port = 3000;
+
+// Twitter App credentials from .env
+const consumerKey = process.env.CONSUMER_KEY;
+const consumerSecret = process.env.CONSUMER_SECRET;
+
+// Your deployed Replit URL
+const callbackURL = 'https://5f901225-7357-46a2-8838-d8c120a93a57-00-1kte8uzx4mpim.riker.replit.dev/twitter/callback';
+
+// Set up sessions
+app.use(session({
+  secret: 'secure-random-secret', // Change this to something long/random
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Configure Twitter OAuth
+const oauth = new OAuth(
+  'https://api.twitter.com/oauth/request_token',
+  'https://api.twitter.com/oauth/access_token',
+  consumerKey,
+  consumerSecret,
+  '1.0A',
+  callbackURL,
+  'HMAC-SHA1'
+);
+
+// Home page with login link
+app.get('/', (req, res) => {
+  res.send(`<a href="/twitter/login">Login with Twitter</a>`);
+});
+
+// Step 1: Start OAuth flow
+app.get('/twitter/login', (req, res) => {
+  oauth.getOAuthRequestToken((error, oauthToken, oauthTokenSecret) => {
+    if (error) return res.send('Error getting request token.');
+
+    req.session.oauthTokenSecret = oauthTokenSecret;
+    res.redirect(`https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`);
+  });
+});
+
+// Step 2: Handle Twitter callback
+app.get('/twitter/callback', (req, res) => {
+  const { oauth_token, oauth_verifier } = req.query;
+  const oauthTokenSecret = req.session.oauthTokenSecret;
+
+  oauth.getOAuthAccessToken(
+    oauth_token,
+    oauthTokenSecret,
+    oauth_verifier,
+    (error, accessToken, accessTokenSecret) => {
+      if (error) return res.send('Error getting access token.');
+
+      // Optional: Fetch user profile
+      oauth.get(
+        'https://api.twitter.com/1.1/account/verify_credentials.json',
+        accessToken,
+        accessTokenSecret,
+        (err, data) => {
+          if (err) return res.send('Failed to fetch user profile.');
+
+          const user = JSON.parse(data);
+          res.send(`
+            <h1>Welcome, @${user.screen_name}!</h1>
+            <p>Name: ${user.name}</p>
+            <img src="${user.profile_image_url_https}" />
+          `);
+        }
+      );
+    }
+  );
+});
+
+app.listen(port, () => {
+  console.log(`Server running at http://localhost:${port}`);
+});
