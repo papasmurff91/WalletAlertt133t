@@ -54,7 +54,7 @@ const oauth = new OAuth(
   process.env.TWITTER_CONSUMER_KEY,
   process.env.TWITTER_CONSUMER_SECRET,
   '1.0A',
-  process.env.CALLBACK_URL || 'https://5f901225-7357-46a2-8838-d8c120a93a57-00-1kte8uzx4mpim.riker.replit.dev/twitter/callback',
+  process.env.CALLBACK_URL || 'https://pumpdottfraud.onrender.com/twitter/callback',
   'HMAC-SHA1'
 );
 
