@@ -1,10 +1,21 @@
 
 const express = require('express');
-const path = require('path');
+const session = require('express-session');
 const { OAuth } = require('oauth');
+const path = require('path');
+
 const app = express();
 
-// OAuth Configuration
+// Session middleware
+app.use(session({
+  secret: 'your_session_secret',
+  resave: false,
+  saveUninitialized: true
+}));
+
+// Serve static files
+app.use(express.static(__dirname));
+
 const oauth = new OAuth(
   'https://api.twitter.com/oauth/request_token',
   'https://api.twitter.com/oauth/access_token',
@@ -15,36 +26,42 @@ const oauth = new OAuth(
   'HMAC-SHA1'
 );
 
-// Serve static files
-app.use(express.static(__dirname));
-app.use(express.json());
+// Twitter OAuth routes
+app.get('/twitter/login', (req, res) => {
+  oauth.getOAuthRequestToken((error, oauthToken, oauthTokenSecret) => {
+    if (error) {
+      console.error('Request Token Error:', error);
+      return res.status(500).send('Error getting OAuth request token');
+    }
 
-// Initialize UI elements after DOM is loaded
-function initializeUI() {
-  // Bridge volume update
-  fetch('/api/bridge-stats')
-    .then(res => res.json())
-    .then(data => {
-      const volumeElement = document.getElementById('bridgeVolume');
-      if (volumeElement) {
-        volumeElement.textContent = `$${data.volume.toLocaleString()}`;
+    req.session.oauthTokenSecret = oauthTokenSecret;
+    const authURL = `https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`;
+    res.redirect(authURL);
+  });
+});
+
+app.get('/twitter/callback', (req, res) => {
+  const { oauth_token, oauth_verifier } = req.query;
+  const oauthTokenSecret = req.session.oauthTokenSecret;
+
+  oauth.getOAuthAccessToken(
+    oauth_token,
+    oauthTokenSecret,
+    oauth_verifier,
+    (error, accessToken, accessTokenSecret, results) => {
+      if (error) {
+        console.error('Access Token Error:', error);
+        return res.status(500).send('Error getting OAuth access token');
       }
-    });
+      
+      req.session.accessToken = accessToken;
+      req.session.accessTokenSecret = accessTokenSecret;
+      res.redirect('/');
+    }
+  );
+});
 
-  // Gas prices update
-  fetch('/api/gas-prices')
-    .then(res => res.json())
-    .then(networks => {
-      Object.entries(networks).forEach(([network, gas]) => {
-        const element = document.getElementById(network);
-        if (element) {
-          element.textContent = gas;
-        }
-      });
-    });
-}
-
-// Routes
+// API routes for bridge stats and gas prices
 app.get('/api/bridge-stats', (req, res) => {
   const volume = Math.floor(Math.random() * 1000000);
   const tx = Math.floor(Math.random() * 100);
@@ -69,6 +86,3 @@ const PORT = 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
-
-// Add script to index.html to initialize UI
-document.addEventListener('DOMContentLoaded', initializeUI);
