@@ -117,6 +117,21 @@ app.get('/api/suspicious-addresses', async (req, res) => {
     res.json(addresses);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch suspicious addresses' });
+
+app.get('/api/track-transaction/:address', async (req, res) => {
+  try {
+    const { trackTransaction } = require('./transaction_tracker');
+    const result = await trackTransaction(null, req.params.address);
+    if (!result) {
+      return res.status(404).json({ error: 'Transaction tracking failed' });
+    }
+    res.json(result);
+  } catch (err) {
+    console.error('Transaction tracking error:', err);
+    res.status(500).json({ error: 'Failed to track transaction' });
+  }
+});
+
   }
 });
 

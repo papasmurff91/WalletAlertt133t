@@ -37,6 +37,8 @@ async function getEngagementMetrics(tweet) {
   };
 }
 
+const { trackTransaction, SUSPICIOUS_PATTERNS } = require('./transaction_tracker');
+
 async function isSuspiciousAddress(address) {
   try {
     const pubkey = new PublicKey(address);
@@ -47,8 +49,13 @@ async function isSuspiciousAddress(address) {
     const highTxVolume = history.length >= 5;
     const recentActivity = history.length > 0 && 
       (Date.now() - history[0].blockTime * 1000) < 3600000;
+
+    // Track suspicious transaction patterns
+    const trackingResult = await trackTransaction(history[0], address);
+    const suspiciousPatterns = trackingResult?.patterns?.length > 0;
+    const mixerDetected = trackingResult?.mixerDetected;
     
-    return highBalance && highTxVolume && recentActivity;
+    return highBalance && highTxVolume && recentActivity || suspiciousPatterns || mixerDetected;
   } catch (err) {
     console.error('Address check error:', err);
     return false;
