@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
   `;
 
   document.body.appendChild(container);
-  
+
   // Enable dark mode by default
   document.body.classList.add('dark-mode');
 
@@ -286,21 +286,26 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function checkContractSafety(address) {
-    const suspiciousPatterns = [
-      address.length !== 42,
-      !/^0x/.test(address),
-      /0000/.test(address)
-    ];
-    return !suspiciousPatterns.some(pattern => pattern);
+  if (!address || typeof address !== 'string') {
+    return false;
   }
 
+  const suspiciousPatterns = [
+    address.length !== 42,
+    !/^0x[a-fA-F0-9]{40}$/.test(address),
+    /0{8,}/.test(address),
+    /([a-fA-F0-9])\1{7,}/.test(address)
+  ];
+  return !suspiciousPatterns.some(pattern => pattern);
+}
+
   function displayResult(message, isError = false) {
-    const resultArea = document.getElementById('resultArea');
-    if (resultArea) {
-      resultArea.innerHTML = message;
-      resultArea.className = isError ? 'error' : 'success';
-    }
+  const resultArea = document.getElementById('resultArea');
+  if (resultArea) {
+    resultArea.textContent = message;
+    resultArea.className = isError ? 'error' : 'success';
   }
+}
 
   // Cross-chain monitoring simulation
   function updateBridgeStats() {
@@ -391,16 +396,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Bridge transaction validation
-      if (alertBanner) {
-        alertBanner.className = `alert-banner ${riskLevel.toLowerCase()}`;
-        alertBanner.textContent = message;
-      }
-    });
-  }
+    // Rate limiting
+  const rateLimiter = {
+    lastCall: 0,
+    minInterval: 1000, // 1 second
+  };
 
+  // Bridge transaction validation
   const validateBridgeBtn = document.getElementById('validateBridgeBtn');
   validateBridgeBtn?.addEventListener('click', () => {
+    const now = Date.now();
+    if (now - rateLimiter.lastCall < rateLimiter.minInterval) {
+      displayResult('⚠️ Please wait before making another request', true);
+      return;
+    }
+    rateLimiter.lastCall = now;
+
     const fromChain = document.getElementById('fromChain').value;
     const toChain = document.getElementById('toChain').value;
     const amount = document.getElementById('bridgeAmountInput').value;
