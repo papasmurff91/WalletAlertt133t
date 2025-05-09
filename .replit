@@ -4,7 +4,7 @@ run = "node index.js"
 
 [nix]
 channel = "stable-24_05"
-packages = ["yakut", "try"]
+packages = ["yakut", "try", "zip"]
 
 [deployment]
 publicDir = "/"
