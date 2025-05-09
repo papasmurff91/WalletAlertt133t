@@ -109,6 +109,23 @@ app.get('/dashboard', (req, res) => {
   res.send('Successfully authenticated with Twitter!');
 });
 
+app.get('/tweet', (req, res) => {
+  const { accessToken, accessTokenSecret } = req.session;
+  if (!accessToken) return res.send('You must log in first.');
+
+  const tweet = 'This is another tweet from Replit!';
+  oauth.post(
+    'https://api.twitter.com/1.1/statuses/update.json',
+    accessToken,
+    accessTokenSecret,
+    { status: tweet },
+    (err) => {
+      if (err) return res.send('Tweet failed.');
+      res.send('Tweet posted successfully!');
+    }
+  );
+});
+
 const PORT = process.env.PORT || 5000;
 // Add health check endpoint
 app.get('/health', (req, res) => {
