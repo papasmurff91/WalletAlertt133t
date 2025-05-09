@@ -1,4 +1,4 @@
-
+// Server-side code
 const express = require('express');
 const session = require('express-session');
 const { OAuth } = require('oauth');
@@ -8,46 +8,23 @@ const app = express();
 
 // Session middleware
 app.use(session({
-  secret: 'your_session_secret',
+  secret: process.env.SESSION_SECRET || 'your_session_secret',
   resave: false,
   saveUninitialized: true
 }));
 
 // Serve static files
 app.use(express.static(__dirname));
+app.use(express.json());
 
-// Secure Twitter API request function
-async function getTwitterCounts() {
-  const username = process.env.TWITTER_USERNAME;
-  const password = process.env.TWITTER_PASSWORD;
-  const accountName = process.env.TWITTER_ACCOUNT_NAME;
-  
-  const auth = Buffer.from(`${username}:${password}`).toString('base64');
-  
-  try {
-    const response = await fetch(
-      `https://gnip-api.x.com/search/30day/accounts/${accountName}/prod/counts.json?query=from%3Axdevelopers`,
-      {
-        headers: {
-          'Authorization': `Basic ${auth}`,
-          'Accept-Encoding': 'gzip',
-        }
-      }
-    );
-    return await response.json();
-  } catch (error) {
-    console.error('Twitter API request failed:', error);
-    throw error;
-  }
-}
-
+// Twitter OAuth configuration
 const oauth = new OAuth(
   'https://api.twitter.com/oauth/request_token',
   'https://api.twitter.com/oauth/access_token',
   process.env.TWITTER_CONSUMER_KEY,
   process.env.TWITTER_CONSUMER_SECRET,
   '1.0A',
-  'https://YOUR-REPL-NAME.YOUR-USERNAME.repl.co/twitter/callback',
+  'http://localhost:5000/twitter/callback',
   'HMAC-SHA1'
 );
 
@@ -58,7 +35,6 @@ app.get('/twitter/login', (req, res) => {
       console.error('Request Token Error:', error);
       return res.status(500).send('Error getting OAuth request token');
     }
-
     req.session.oauthTokenSecret = oauthTokenSecret;
     const authURL = `https://api.twitter.com/oauth/authorize?oauth_token=${oauthToken}`;
     res.redirect(authURL);
@@ -78,7 +54,6 @@ app.get('/twitter/callback', (req, res) => {
         console.error('Access Token Error:', error);
         return res.status(500).send('Error getting OAuth access token');
       }
-      
       req.session.accessToken = accessToken;
       req.session.accessTokenSecret = accessTokenSecret;
       res.redirect('/');
@@ -86,7 +61,7 @@ app.get('/twitter/callback', (req, res) => {
   );
 });
 
-// API routes for bridge stats and gas prices
+// API routes
 app.get('/api/bridge-stats', (req, res) => {
   const volume = Math.floor(Math.random() * 1000000);
   const tx = Math.floor(Math.random() * 100);
