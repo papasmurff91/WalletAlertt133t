@@ -153,7 +153,7 @@ app.use((err, req, res, next) => {
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
   console.log('Health check available at /health');
-  
+
   // Test OAuth configuration
   if (!process.env.TWITTER_CONSUMER_KEY || !process.env.TWITTER_CONSUMER_SECRET) {
     console.warn('Warning: Twitter OAuth credentials not configured');
