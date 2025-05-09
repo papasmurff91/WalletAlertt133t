@@ -83,6 +83,30 @@ app.get('/twitter/callback', (req, res) => {
     return res.status(400).send('No OAuth token found in session');
   }
 
+  // Add refresh token handling
+  const refreshToken = req.session.refreshToken;
+  if (refreshToken) {
+    oauth.post(
+      'https://api.twitter.com/2/oauth2/token',
+      refreshToken,
+      '',
+      {
+        grant_type: 'refresh_token',
+        client_id: process.env.TWITTER_CONSUMER_KEY
+      },
+      (error, data) => {
+        if (error) {
+          console.error('Token refresh error:', error);
+          req.session.destroy();
+          return res.redirect('/');
+        }
+        const tokenData = JSON.parse(data);
+        req.session.accessToken = tokenData.access_token;
+        req.session.refreshToken = tokenData.refresh_token;
+      }
+    );
+  }
+
   oauth.getOAuthAccessToken(
     oauth_token,
     oauthTokenSecret,
