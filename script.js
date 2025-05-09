@@ -164,18 +164,28 @@ app.use((err, req, res, next) => {
 });
 
 app.get('/api/bridge-stats', (req, res) => {
-  const volume = Math.floor(Math.random() * 1000000);
-  const tx = Math.floor(Math.random() * 100);
-  res.json({ volume, tx });
+  try {
+    const volume = Math.floor(Math.random() * 1000000);
+    const tx = Math.floor(Math.random() * 100);
+    res.json({ volume, tx });
+  } catch (error) {
+    console.error('Bridge stats error:', error);
+    res.status(500).json({ error: 'Failed to fetch bridge stats' });
+  }
 });
 
 app.get('/api/gas-prices', (req, res) => {
-  const networks = {
-    'ethGas': { price: '50-60', trend: Math.random() > 0.5 ? 1 : -1 },
-    'bscGas': { price: '5-7', trend: Math.random() > 0.5 ? 1 : -1 },
-    'solGas': { price: '0.001', trend: Math.random() > 0.5 ? 1 : -1 }
-  };
-  res.json(networks);
+  try {
+    const networks = {
+      'ethGas': { price: '50-60', trend: Math.random() > 0.5 ? 1 : -1 },
+      'bscGas': { price: '5-7', trend: Math.random() > 0.5 ? 1 : -1 },
+      'solGas': { price: '0.001', trend: Math.random() > 0.5 ? 1 : -1 }
+    };
+    res.json(networks);
+  } catch (error) {
+    console.error('Gas prices error:', error);
+    res.status(500).json({ error: 'Failed to fetch gas prices' });
+  }
 });
 
 // Serve index.html

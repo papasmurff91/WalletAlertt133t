@@ -10,10 +10,19 @@ publicDir = "/"
 deploymentTarget = "static"
 
 [workflows]
-runButton = "Run Web App"
+runButton = "Run"
 
 [[workflows.workflow]]
 name = "Run Web App"
+author = 42372600
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node script.js"
+
+[[workflows.workflow]]
+name = "Run"
 author = 42372600
 mode = "sequential"
 
