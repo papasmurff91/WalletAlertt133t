@@ -16,6 +16,31 @@ app.use(session({
 // Serve static files
 app.use(express.static(__dirname));
 
+// Secure Twitter API request function
+async function getTwitterCounts() {
+  const username = process.env.TWITTER_USERNAME;
+  const password = process.env.TWITTER_PASSWORD;
+  const accountName = process.env.TWITTER_ACCOUNT_NAME;
+  
+  const auth = Buffer.from(`${username}:${password}`).toString('base64');
+  
+  try {
+    const response = await fetch(
+      `https://gnip-api.x.com/search/30day/accounts/${accountName}/prod/counts.json?query=from%3Axdevelopers`,
+      {
+        headers: {
+          'Authorization': `Basic ${auth}`,
+          'Accept-Encoding': 'gzip',
+        }
+      }
+    );
+    return await response.json();
+  } catch (error) {
+    console.error('Twitter API request failed:', error);
+    throw error;
+  }
+}
+
 const oauth = new OAuth(
   'https://api.twitter.com/oauth/request_token',
   'https://api.twitter.com/oauth/access_token',
