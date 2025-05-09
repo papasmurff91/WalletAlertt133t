@@ -109,22 +109,34 @@ app.get('/dashboard', (req, res) => {
   res.send('Successfully authenticated with Twitter!');
 });
 
-app.get('/tweet', (req, res) => {
+app.post('/tweet', express.json(), (req, res) => {
   const { accessToken, accessTokenSecret } = req.session;
-  if (!accessToken) return res.send('You must log in first.');
+  if (!accessToken) return res.status(401).json({ error: 'Authentication required' });
 
-  const tweet = 'gm frenz';
+  const tweet = req.body.text || 'gm frenz';
   oauth.post(
     'https://api.twitter.com/1.1/statuses/update.json',
     accessToken,
     accessTokenSecret,
     { status: tweet },
-    (err) => {
-      if (err) return res.send('Tweet failed.');
-      res.send('Tweet posted successfully!');
+    (err, data) => {
+      if (err) {
+        console.error('Tweet error:', err);
+        return res.status(500).json({ error: 'Failed to post tweet' });
+      }
+      res.json({ success: true, tweet_id: data?.id_str });
     }
   );
 });
+
+// Add rate limiting for Twitter endpoints
+const twitterLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50,
+  message: 'Too many requests from this IP'
+});
+
+app.use('/twitter', twitterLimiter);
 
 const PORT = process.env.PORT || 5000;
 // Add health check endpoint

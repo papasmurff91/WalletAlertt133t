@@ -1,4 +1,4 @@
-// Client-side code with retry logic
+// Client-side code with enhanced mobile support
 function debounce(func, wait) {
   let timeout;
   return function executedFunction(...args) {
@@ -11,9 +11,29 @@ function debounce(func, wait) {
   };
 }
 
+// Add mobile touch handling
+let touchStartY = 0;
+let touchEndY = 0;
+const minSwipeDistance = 50;
+
+document.addEventListener('touchstart', e => {
+  touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchmove', e => {
+  touchEndY = e.touches[0].clientY;
+}, { passive: true });
+
+document.addEventListener('touchend', () => {
+  const swipeDistance = touchEndY - touchStartY;
+  if (swipeDistance > minSwipeDistance && window.scrollY === 0) {
+    updateAll();
+  }
+}, { passive: true });
+
 async function fetchWithRetry(url, retries = 3, delay = 1000) {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 5000); // 5s timeout
+  const timeout = setTimeout(() => controller.abort(), 5000);
 
   for (let i = 0; i < retries; i++) {
     try {
@@ -26,12 +46,8 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
       });
       clearTimeout(timeout);
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      return data;
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      return await response.json();
     } catch (err) {
       if (i === retries - 1) {
         console.error(`Failed to fetch ${url}:`, err);
@@ -42,20 +58,16 @@ async function fetchWithRetry(url, retries = 3, delay = 1000) {
   }
 }
 
-async function updateBridgeStats() {
-  try {
+const updateFunctions = {
+  async bridgeStats() {
     const data = await fetchWithRetry('/api/bridge-stats');
-    const volumeElement = document.getElementById('bridgeVolume');
-    if (volumeElement && data?.volume) {
-      volumeElement.textContent = `$${data.volume.toLocaleString()}`;
+    const element = document.getElementById('bridgeVolume');
+    if (element && data?.volume) {
+      element.textContent = `$${data.volume.toLocaleString()}`;
     }
-  } catch (err) {
-    console.error('Bridge stats update failed:', err);
-  }
-}
+  },
 
-async function updateGasPrices() {
-  try {
+  async gasPrices() {
     const networks = await fetchWithRetry('/api/gas-prices');
     if (!networks) return;
 
@@ -68,66 +80,177 @@ async function updateGasPrices() {
         element.classList.toggle('price-down', gas.trend < 0);
       }
     });
-  } catch (err) {
-    console.error('Gas prices update failed:', err);
-  }
-}
+  },
 
-async function updateSuspiciousActors() {
-  try {
-    const data = await fetchWithRetry('/api/suspicious-actors');
-    const actorsElement = document.getElementById('suspiciousActors');
-    if (actorsElement && data) {
-      actorsElement.innerHTML = data.length ? data.map(actor => `
-        <div class="actor-item">
-          <span class="actor-handle">@${actor.authorId}</span>
-          <span class="actor-score">Risk Score: ${actor.score}</span>
-        </div>
-      `).join('') : 'No suspicious activity detected';
-    }
-  } catch (err) {
-    console.error('Suspicious actors update failed:', err);
-  }
-}
-
-async function updateTwitterMetrics() {
-  try {
+  async twitterMetrics() {
     const data = await fetchWithRetry('/api/twitter-metrics');
-    const metricsElement = document.getElementById('twitterMetrics');
-    if (metricsElement && data) {
-      metricsElement.textContent = JSON.stringify(data, null, 2);
+    const element = document.getElementById('twitterMetrics');
+    if (element && data) {
+      element.textContent = JSON.stringify(data, null, 2);
     }
-  } catch (err) {
-    console.error('Twitter metrics update failed:', err);
+  },
+  async suspiciousActors() {
+      const data = await fetchWithRetry('/api/suspicious-actors');
+      const actorsElement = document.getElementById('suspiciousActors');
+      if (actorsElement && data) {
+        actorsElement.innerHTML = data.length ? data.map(actor => `
+          <div class="actor-item">
+            <span class="actor-handle">@${actor.authorId}</span>
+            <span class="actor-score">Risk Score: ${actor.score}</span>
+          </div>
+        `).join('') : 'No suspicious activity detected';
+      }
+    },
+    async swapStats() {
+      try {
+        const data = await fetchWithRetry('/api/swap-stats');
+        if (!data) return;
+  
+        // Check price alerts
+        const currentPrice = (data.radium?.volume || 0) / 100; // Example price calculation
+        priceAlerts.forEach(alert => {
+          if ((alert.direction === 'above' && currentPrice > alert.price) ||
+              (alert.direction === 'below' && currentPrice < alert.price)) {
+            new Notification(`Price Alert: $${currentPrice}`, {
+              body: `Price is ${alert.direction} your target of $${alert.price}`,
+              icon: '/generated-icon.png'
+            });
+          }
+        });
+  
+        const radiumElement = document.getElementById('radiumSwaps');
+        const jupiterElement = document.getElementById('jupiterSwaps');
+  
+        if (radiumElement && data.radium) {
+          const trend = data.radium.trend > 0 ? '↗️' : '↘️';
+          radiumElement.textContent = `$${data.radium.volume.toLocaleString()} ${trend}`;
+        }
+  
+        if (jupiterElement && data.jupiter) {
+          const trend = data.jupiter.trend > 0 ? '↗️' : '↘️';
+          jupiterElement.textContent = `$${data.jupiter.volume.toLocaleString()} ${trend}`;
+        }
+      } catch (err) {
+        console.error('Swap stats update failed:', err);
+      }
+    }
+};
+
+function copyToClipboard(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    return navigator.clipboard.writeText(text);
+  } else {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+    } catch (error) {
+      console.error('Copy failed:', error);
+    }
+    textArea.remove();
   }
 }
 
-// Initialize UI with error boundary
-async function checkContract() {
-  const input = document.getElementById('contractInput');
-  const result = document.getElementById('contractResult');
-  const address = input.value.trim().replace(/[<>&'"]/g, '');
-  
-  if (!/^[A-Za-z0-9]{32,44}$/.test(address)) {
-    result.textContent = 'Invalid address format';
-    result.style.display = 'block';
-    return;
+const debouncedUpdate = debounce(() => updateAll(), 500);
+
+document.addEventListener('DOMContentLoaded', () => {
+  const updateInterval = 30000;
+
+  // Theme handling
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+  const themeToggle = document.getElementById('themeToggle');
+
+  function setTheme(isDark) {
+    document.body.classList.toggle('light-theme', !isDark);
+    themeToggle.textContent = isDark ? '🌙' : '☀️';
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
   }
 
-  if (!address) {
-    result.textContent = 'Please enter a contract address';
-    result.style.display = 'block';
-    return;
-  }
+  themeToggle?.addEventListener('click', () => {
+    const isDark = !document.body.classList.contains('light-theme');
+    setTheme(!isDark);
+  });
 
-  try {
-    const data = await fetchWithRetry(`/api/check-contract/${address}`);
-    result.textContent = data.message || 'Contract verified';
-    result.style.display = 'block';
-  } catch (err) {
-    result.textContent = 'Invalid contract address';
-    result.style.display = 'block';
-  }
+  // Initialize theme
+  const savedTheme = localStorage.getItem('theme');
+  setTheme(savedTheme ? savedTheme === 'dark' : prefersDark.matches);
+
+  // Handle tweets
+  document.querySelectorAll('.tweet-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      try {
+        const response = await fetch('/tweet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: btn.dataset.text })
+        });
+        const result = await response.text();
+        alert(result);
+      } catch (error) {
+        console.error('Tweet failed:', error);
+        alert('Failed to tweet. Please try again.');
+      }
+    });
+  });
+
+  // Start updates
+  updateAll();
+  const intervalId = setInterval(updateAll, updateInterval);
+  window.addEventListener('unload', () => clearInterval(intervalId));
+});
+
+async function updateAll() {
+  await Promise.allSettled(
+    Object.values(updateFunctions).map(async (fn) => {
+      try {
+        await fn();
+      } catch (err) {
+        console.error(`${fn.name} error:`, err);
+        const elementId = fn.name === 'bridgeStats' ? 'bridgeVolume' :
+                          fn.name === 'gasPrices' ? ['ethGas', 'bscGas', 'solGas'] :
+                          fn.name === 'twitterMetrics' ? 'twitterMetrics' :
+                          fn.name === 'suspiciousActors' ? 'suspiciousActors' :
+                          fn.name === 'swapStats' ? ['radiumSwaps', 'jupiterSwaps'] : null;
+
+        const displayError = (elementId, message = 'Service unavailable') => {
+          if (Array.isArray(elementId)) {
+            elementId.forEach(id => {
+              const element = document.getElementById(id);
+              if (element) {
+                element.textContent = message;
+                element.classList.add('error');
+              }
+            });
+          } else if (elementId) {
+            const element = document.getElementById(elementId);
+            if (element) {
+              element.textContent = message;
+              element.classList.add('error');
+            }
+          }
+        };
+
+        if (elementId) {
+          if (Array.isArray(elementId)) {
+            elementId.forEach(id => displayError(id));
+          } else {
+            displayError(elementId);
+          }
+        }
+
+        if (fn.name === 'swapStats') {
+          document.querySelectorAll('.alert-content').forEach(el => {
+            el.textContent = 'Service unavailable';
+          });
+        }
+      }
+    })
+  );
 }
 
 function copyAddress() {
@@ -141,157 +264,23 @@ function copyAddress() {
     .catch(err => console.error('Failed to copy:', err));
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const updateInterval = 30000; // 30 seconds
-  
-  // Pull to refresh implementation
-  let touchStart = 0;
-  let touchY = 0;
-  const pullToRefreshElement = document.createElement('div');
-  pullToRefreshElement.className = 'pull-to-refresh';
-  pullToRefreshElement.textContent = 'Pull to refresh';
-  document.body.insertBefore(pullToRefreshElement, document.body.firstChild);
+const priceAlerts = new Set();
 
-  document.addEventListener('touchstart', (e) => {
-    touchStart = e.touches[0].pageY;
-  }, { passive: true });
+function setPriceAlert() {
+  const price = document.getElementById('alertPrice').value;
+  const direction = document.getElementById('alertDirection').value;
+  const alertsDiv = document.getElementById('activeAlerts');
 
-  document.addEventListener('touchmove', (e) => {
-    touchY = e.touches[0].pageY;
-    if (document.scrollTop === 0 && touchY > touchStart) {
-      pullToRefreshElement.classList.add('visible');
-      e.preventDefault();
-    }
-  }, { passive: false });
+  if (!price) return;
 
-  document.addEventListener('touchend', () => {
-    if (pullToRefreshElement.classList.contains('visible')) {
-      pullToRefreshElement.classList.remove('visible');
-      updateAll();
-    }
-  }, { passive: true });
-
-  // Optimize updates with debouncing
-  const debouncedUpdate = debounce(() => {
-    updateAll();
-  }, 500);
-
-  // Theme toggle functionality
-  const themeToggle = document.getElementById('themeToggle');
-  let isDark = true;
-
-  themeToggle.addEventListener('click', () => {
-    isDark = !isDark;
-    document.body.classList.toggle('light-theme', !isDark);
-    themeToggle.textContent = isDark ? '🌙' : '☀️';
-  });
-
-  const displayError = (elementId, message = 'Unavailable') => {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.textContent = message;
-      element.classList.add('error');
-    }
+  const alert = {
+    price: parseFloat(price),
+    direction,
+    id: Date.now()
   };
 
-  const clearError = (elementId) => {
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.classList.remove('error');
-    }
-  };
-
-  const priceAlerts = new Set();
-
-  function setPriceAlert() {
-    const price = document.getElementById('alertPrice').value;
-    const direction = document.getElementById('alertDirection').value;
-    const alertsDiv = document.getElementById('activeAlerts');
-
-    if (!price) return;
-
-    const alert = {
-      price: parseFloat(price),
-      direction,
-      id: Date.now()
-    };
-
-    priceAlerts.add(alert);
-    alertsDiv.innerHTML = Array.from(priceAlerts)
-      .map(a => `${a.direction === 'above' ? '↗️' : '↘️'} Alert when price ${a.direction} $${a.price}`)
-      .join('<br>');
-  }
-
-  async function updateSwapStats() {
-    try {
-      const data = await fetchWithRetry('/api/swap-stats');
-      if (!data) return;
-
-      // Check price alerts
-      const currentPrice = (data.radium?.volume || 0) / 100; // Example price calculation
-      priceAlerts.forEach(alert => {
-        if ((alert.direction === 'above' && currentPrice > alert.price) ||
-            (alert.direction === 'below' && currentPrice < alert.price)) {
-          new Notification(`Price Alert: $${currentPrice}`, {
-            body: `Price is ${alert.direction} your target of $${alert.price}`,
-            icon: '/generated-icon.png'
-          });
-        }
-      });
-
-      const radiumElement = document.getElementById('radiumSwaps');
-      const jupiterElement = document.getElementById('jupiterSwaps');
-
-      if (radiumElement && data.radium) {
-        const trend = data.radium.trend > 0 ? '↗️' : '↘️';
-        radiumElement.textContent = `$${data.radium.volume.toLocaleString()} ${trend}`;
-      }
-
-      if (jupiterElement && data.jupiter) {
-        const trend = data.jupiter.trend > 0 ? '↗️' : '↘️';
-        jupiterElement.textContent = `$${data.jupiter.volume.toLocaleString()} ${trend}`;
-      }
-    } catch (err) {
-      console.error('Swap stats update failed:', err);
-    }
-  }
-
-  // Update metrics at regular intervals
-  const updateAll = async () => {
-    try {
-      await Promise.allSettled([
-        updateSuspiciousActors().catch(err => {
-          console.error('Suspicious actors error:', err);
-          displayError('suspiciousActors', 'Service unavailable');
-        }),
-        updateBridgeStats().catch(err => {
-          console.error('Bridge stats error:', err);
-          displayError('bridgeVolume', 'Service unavailable');
-        }),
-        updateGasPrices().catch(err => {
-          console.error('Gas prices error:', err);
-          ['ethGas', 'bscGas', 'solGas'].forEach(id => displayError(id, 'Service unavailable'));
-        }),
-        updateTwitterMetrics().catch(err => {
-          console.error('Twitter metrics error:', err);
-          displayError('twitterMetrics', 'Service unavailable');
-        }),
-        updateSwapStats().catch(err => {
-          console.error('Swap stats error:', err);
-          ['radiumSwaps', 'jupiterSwaps'].forEach(id => displayError(id, 'Service unavailable'));
-          document.querySelectorAll('.alert-content').forEach(el => {
-            el.textContent = 'Service unavailable';
-          });
-        })
-      ]);
-    } catch (err) {
-      console.error('Update failed:', err);
-    }
-  };
-
-  updateAll();
-  const intervalId = setInterval(updateAll, updateInterval);
-
-  // Cleanup interval on page unload
-  window.addEventListener('unload', () => clearInterval(intervalId));
-});
+  priceAlerts.add(alert);
+  alertsDiv.innerHTML = Array.from(priceAlerts)
+    .map(a => `${a.direction === 'above' ? '↗️' : '↘️'} Alert when price ${a.direction} $${a.price}`)
+    .join('<br>');
+}

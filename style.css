@@ -398,7 +398,39 @@ pre {
   }
 }
 
+/* Mobile optimizations */
+@media (hover: hover) {
+  .stat-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .copy-btn:hover {
+    transform: scale(1.05);
+  }
+}
+
 @media (max-width: 768px) {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  input, button, select {
+    font-size: 16px !important; /* Prevent iOS zoom */
+  }
+  
+  .container {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  
+  .stat-card {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+  }
+  
+  .tweet-btn {
+    min-height: 44px;
+    padding: 12px 20px;
+  }
   .container {
     padding: 0.75rem;
     max-width: 100%;
