@@ -113,7 +113,7 @@ app.post('/tweet', express.json(), (req, res) => {
   const { accessToken, accessTokenSecret } = req.session;
   if (!accessToken) return res.status(401).json({ error: 'Authentication required' });
 
-  const tweet = req.body.text || 'gm frenz';
+  const tweet = req.body.text || 'Hello world! This tweet was sent from my Replit app.';
   oauth.post(
     'https://api.twitter.com/1.1/statuses/update.json',
     accessToken,
@@ -124,7 +124,11 @@ app.post('/tweet', express.json(), (req, res) => {
         console.error('Tweet error:', err);
         return res.status(500).json({ error: 'Failed to post tweet' });
       }
-      res.json({ success: true, tweet_id: data?.id_str });
+      res.json({ 
+        success: true, 
+        message: 'Tweet sent successfully!',
+        tweet_id: data?.id_str 
+      });
     }
   );
 });
